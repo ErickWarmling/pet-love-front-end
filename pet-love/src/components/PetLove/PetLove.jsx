@@ -1,6 +1,10 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ListDonos from "../Donos/ListDonos/ListDonos";
 import TopMenu from "../TopMenu/TopMenu";
+import ListSolicitacaoAdocao from "../Adocoes/ListSolicitacaoAdocao/ListSolicitacaoAdocao";
+import ListConsultas from "../Consultas/ListConsultas/ListConsultas";
+import ListPets from "../Pets/ListPets/ListPets";
+import ListFuncionarios from "../Funcionarios/ListFuncionarios/ListFuncionarios";
 
 export default function PetLove() {
     return (
@@ -8,7 +12,11 @@ export default function PetLove() {
             <TopMenu></TopMenu>
             <BrowserRouter>
                 <Routes>
+                    <Route path="/funcionarios" element={<ListFuncionarios/>}></Route>
                     <Route path="/donos" element={<ListDonos/>}></Route>
+                    <Route path="/pets" element={<ListPets/>}></Route>
+                    <Route path="/consultas" element={<ListConsultas/>}></Route>
+                    <Route path="/adocoes" element={<ListSolicitacaoAdocao/>}></Route>
                 </Routes>
             </BrowserRouter>
         </div>
