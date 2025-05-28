@@ -2,6 +2,7 @@ import { useState } from 'react';
 import AddButton from '../../Grid/AddButton/AddButton';
 import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
+import ModalForm from '../../Form/ModalForm';
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -38,8 +39,8 @@ const data = [
 ];
 
 function ListFuncionarios() {
-
     const [filteredData, setFilteredData] = useState(data);
+    const [showModal, setShowModal] = useState(false);
 
     const applyFilter = (filters) => {
         const filtered = data.filter(item =>
@@ -50,6 +51,22 @@ function ListFuncionarios() {
         setFilteredData(filtered);
     };
 
+    const handleAdd = (newPerson) => {
+        const newId = data.length ? Math.max(...data.map(d => d.id)) + 1 : 1;
+        setData(prev => [...prev, { id: newId, ...newPerson }]);
+    };
+
+    const formFields = [
+        { name: 'name', label: 'Nome' },
+        { name: 'cpf', label: 'CPF' },
+        { name: 'cidade', label: 'Cidade' },
+        { name: 'phone', label: 'Telefone' },
+        { name: 'crmv', label: 'CRMV' },
+        { name: 'email', label: 'E-mail' },
+        { name: 'especialidade', label: 'Especialidade', type: 'textarea' },
+        { name: 'password', label: 'Senha', type: 'password' },
+    ];
+
     return (
         <section className="ListFuncionarios py-4">
             <div className="container">
@@ -59,7 +76,7 @@ function ListFuncionarios() {
                         <h2 className="m-0">FUNCIONÁRIOS</h2>
                     </div>
                     <div className="col-auto">
-                        <AddButton text="Novo Funcionário" onClick={() => console.log('NOVO FUNCIONÁRIO')} />
+                        <AddButton text="Novo Funcionário" onClick={() => setShowModal(true)} />
                     </div>
                 </div>
 
@@ -76,6 +93,15 @@ function ListFuncionarios() {
                         <GridContent data={filteredData} columns={columns} />
                     </div>
                 </div>
+
+                {/* Modal form */}
+                <ModalForm
+                    show={showModal}
+                    onClose={() => setShowModal(false)}
+                    title="Novo Funcionário"
+                    fields={formFields}
+                    onSubmit={handleAdd}
+                />
             </div>
         </section>
     );

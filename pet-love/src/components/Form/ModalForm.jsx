@@ -26,6 +26,7 @@ function ModalForm({ show, onClose, title, fields, onSubmit }) {
                         <Form.Group className="mb-3" key={index}>
                             <Form.Label>{field.label}</Form.Label>
                             <Form.Control
+                                as={field.type === 'textarea' ? 'textarea' : 'input'}
                                 type={field.type || 'text'}
                                 name={field.name}
                                 value={formData[field.name] || ''}
