@@ -1,0 +1,33 @@
+.login-form {
+   background-color: #F0FFEC;
+   padding: 30px;
+   display: flex;
+   flex-direction: column;
+   width: 30%;
+   gap: 10px;
+   margin: 0 auto;
+   border: 1px solid black
+}
+
+.login-form .form-control {
+    background-color: #D9D9D9;
+    border: 1px solid black
+}
+
+.radio {
+    display: flex;
+    justify-content: center;
+}
+
+.enter-button {
+    background-color: #11C804;
+    border: none;
+    width: 50%;
+    margin: 0 auto;
+    display: block;
+    color: black;
+}
+
+h1 {
+    color: #075B01;
+}
