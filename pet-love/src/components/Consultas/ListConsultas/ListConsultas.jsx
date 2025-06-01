@@ -2,10 +2,10 @@ import { useState } from 'react';
 import AddButton from '../../Grid/AddButton/AddButton';
 import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
+import ModalForm from '../../Form/ModalForm';
 
 const columns = [
     { header: 'ID', accessor: 'id' },
-    { header: 'Dono', accessor: 'owner' },
     { header: 'Pet', accessor: 'pet' },
     { header: 'Data', accessor: 'date' },
     { header: 'Veterinário', accessor: 'veterinary' },
@@ -51,8 +51,8 @@ const data = [
 
 
 function ListConsultas() {
-
     const [filteredData, setFilteredData] = useState(data);
+    const [showModal, setShowModal] = useState(false);
 
     const applyFilter = (filters) => {
         const filtered = data.filter(item =>
@@ -63,6 +63,26 @@ function ListConsultas() {
         setFilteredData(filtered);
     };
 
+    const handleAdd = (newConsultation) => {
+        const newId = data.length ? Math.max(...data.map(d => d.id)) +1 : 1;
+        setData(prev => [...prev, { id: newId, ... newConsultation }]);
+    };
+
+   const formFields = [
+    { name: 'pet', label: 'Pet', type: 'select', options: ['Rex', 'Mimi', 'Thor', 'Luna', 'Max'] },
+    { name: 'veterinary', label: 'Veterinário', type: 'select', options: [
+        'Dra. Roberta Lima',
+        'Dr. Diego Martins',
+        'Dra. Larissa Souza',
+        'Dr. Bruno Oliveira',
+        'Dra. Camila Rocha'
+    ]},
+    { name: 'date', label: 'Data', type: 'date' },
+    { name: 'time', label: 'Horário', type: 'time' },
+    { name: 'description', label: 'Descrição', type: 'textarea', rows: 4 },
+    { name: 'value', label: 'Valor', type: 'number' },
+];
+
     return (
         <section className="ListConsultas py-4">
             <div className="container">
@@ -72,7 +92,7 @@ function ListConsultas() {
                         <h2 className="m-0">CONSULTAS</h2>
                     </div>
                     <div className="col-auto">
-                        <AddButton text="Nova Consulta" onClick={() => console.log('NOVA CONSULTA')} />
+                        <AddButton text="Nova Consulta" onClick={() => setShowModal(true)} />
                     </div>
                 </div>
 
@@ -89,6 +109,15 @@ function ListConsultas() {
                         <GridContent data={filteredData} columns={columns} />
                     </div>
                 </div>
+
+                {/* Modal Form */}
+                <ModalForm
+                    show={showModal}
+                    onClose={() => setShowModal(false)}
+                    title="Nova Consulta"
+                    fields={formFields}
+                    onSubmit={handleAdd}
+                />
             </div>
         </section>
     );
