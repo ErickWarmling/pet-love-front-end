@@ -51,6 +51,7 @@ function LoginForm({ onSubmit }) {
                         label="Recepção"
                         checked={formData.perfil === 1}
                         onChange={handleChange}
+                        required
                         inline
                     />
                     <Form.Check
@@ -60,6 +61,7 @@ function LoginForm({ onSubmit }) {
                         label="Veterinário"
                         checked={formData.perfil === 2}
                         onChange={handleChange}
+                        required
                         inline
                     />
                 </div>
