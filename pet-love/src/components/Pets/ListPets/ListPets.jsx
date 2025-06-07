@@ -2,6 +2,7 @@ import { useState } from 'react';
 import AddButton from '../../Grid/AddButton/AddButton';
 import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
+import ModalForm from '../../Form/ModalForm';
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -55,10 +56,32 @@ const data = [
     }
 ];
 
+const handleAdd = (newPet) => {
+        const newId = data.length ? Math.max(...data.map(d => d.id)) +1 : 1;
+        setData(prev => [...prev, { id: newId, ... newPet }]);
+    };
+
+const formFields = [
+    { name: 'name', label: 'Nome' },
+    { name: 'owner', label: 'Dono', type: 'select', options: [
+        'Lucas Silva',
+        'Ana Costa',
+        'João Pereira',
+        'Mariana Rocha',
+        'Carlos Almeida'
+    ]},
+    { name: 'type', label: 'Tipo', type: 'select', options: ['Cachorro', 'Gato'] },
+    { name: 'race', label: 'Raça' },
+    { name: 'date_birth', label: 'Data de Nascimento', type: 'date' },
+    { name: 'observation', label: 'Observações', type: 'textarea', rows: 4 },
+    { name: 'image', label: 'Foto', type: 'file'},
+];
+
 
 function ListPets() {
 
     const [filteredData, setFilteredData] = useState(data);
+    const [showModal, setShowModal] = useState(false);
 
     const applyFilter = (filters) => {
         const filtered = data.filter(item =>
@@ -78,7 +101,7 @@ function ListPets() {
                         <h2 className="m-0">PETS</h2>
                     </div>
                     <div className="col-auto">
-                        <AddButton text="Novo Pet" onClick={() => console.log('NOVO PET')} />
+                        <AddButton text="Novo Pet" onClick={() => setShowModal(true)} />
                     </div>
                 </div>
 
@@ -95,6 +118,15 @@ function ListPets() {
                         <GridContent data={filteredData} columns={columns} />
                     </div>
                 </div>
+
+                {/* Modal Form */}
+                <ModalForm
+                    show={showModal}
+                    onClose={() => setShowModal(false)}
+                    title="Novo Pet"
+                    fields={formFields}
+                    onSubmit={handleAdd}
+                />
             </div>
         </section>
     );
