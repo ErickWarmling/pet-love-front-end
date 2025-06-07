@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddButton from '../../Grid/AddButton/AddButton';
 import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
+import { listPets } from '../../../api/pets';
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -12,58 +13,44 @@ const columns = [
     { header: 'Data de Nascimento', accessor: 'date_birth' },
 ];
 
-const data = [
-    {
-        id: 1,
-        name: 'Rex',
-        owner: 'Lucas Silva',
-        type: 'Cachorro',
-        race: 'Labrador',
-        date_birth: '2020-03-15'
-    },
-    {
-        id: 2,
-        name: 'Mimi',
-        owner: 'Ana Costa',
-        type: 'Gato',
-        race: 'Persa',
-        date_birth: '2019-07-22'
-    },
-    {
-        id: 3,
-        name: 'Thor',
-        owner: 'João Pereira',
-        type: 'Cachorro',
-        race: 'Bulldog Francês',
-        date_birth: '2021-01-05'
-    },
-    {
-        id: 4,
-        name: 'Luna',
-        owner: 'Mariana Rocha',
-        type: 'Gato',
-        race: 'Siamês',
-        date_birth: '2018-11-11'
-    },
-    {
-        id: 5,
-        name: 'Max',
-        owner: 'Carlos Almeida',
-        type: 'Cachorro',
-        race: 'Golden Retriever',
-        date_birth: '2022-06-30'
-    }
-];
-
-
 function ListPets() {
+    const [filteredData, setFilteredData] = useState([]);
 
-    const [filteredData, setFilteredData] = useState(data);
+    useEffect(() => {
+        async function fetchData() {
+            setFilteredData(await getPets())
+        }
+        fetchData();
+    }, []);
 
-    const applyFilter = (filters) => {
+    async function getPets() {
+        try {
+            const resposta = await listPets();
+            const responseData = resposta.data.map((item) => (
+                {
+                    id: item.id,
+                    name: item.nome,
+                    owner: '',
+                    type: item.especie.nome,
+                    race: item.raca.nome,
+                    date_birth: item.dataNascimento
+                }
+            ));
+            return responseData;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const applyFilter = async function (filters) {
+        const data = await getConsultas();
         const filtered = data.filter(item =>
             Object.entries(filters).every(([key, val]) =>
-                val === '' || (item[key] || '').toLowerCase().includes(val.toLowerCase())
+                val === '' ||
+                String(item[key] ?? '')
+                    .toLowerCase()
+                    .includes(val.toLowerCase())
             )
         );
         setFilteredData(filtered);
