@@ -5,6 +5,7 @@ import ListSolicitacaoAdocao from "../Adocoes/ListSolicitacaoAdocao/ListSolicita
 import ListConsultas from "../Consultas/ListConsultas/ListConsultas";
 import ListPets from "../Pets/ListPets/ListPets";
 import ListFuncionarios from "../Funcionarios/ListFuncionarios/ListFuncionarios";
+import Login from "../Login/Login";
 
 export default function PetLove() {
     return (
@@ -17,6 +18,7 @@ export default function PetLove() {
                     <Route path="/pets" element={<ListPets/>}></Route>
                     <Route path="/consultas" element={<ListConsultas/>}></Route>
                     <Route path="/adocoes" element={<ListSolicitacaoAdocao/>}></Route>
+                    <Route path="/login" element={<Login />}></Route>
                 </Routes>
             </BrowserRouter>
         </div>

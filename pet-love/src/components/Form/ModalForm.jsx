@@ -15,6 +15,36 @@ function ModalForm({ show, onClose, title, fields, onSubmit }) {
         onClose();
     };
 
+        const renderField = (field) => {
+        const commonProps = {
+            name: field.name,
+            value: formData[field.name] || '',
+            onChange: handleChange
+        };
+
+        switch (field.type) {
+            case 'select':
+                return (
+                    <Form.Select {...commonProps}>
+                        <option value="">Selecione</option>
+                        {field.options?.map((option, i) => (
+                            <option key={i} value={option.value || option}>
+                                {option.label || option}
+                            </option>
+                        ))}
+                    </Form.Select>
+                );
+            case 'textarea':
+                return (
+                    <Form.Control as="textarea" rows={field.rows || 3} {...commonProps} />
+                );
+            default:
+                return (
+                    <Form.Control type={field.type || 'text'} {...commonProps} />
+                );
+        }
+    };
+
     return (
         <Modal show={show} onHide={onClose}>
             <Modal.Header closeButton>
@@ -25,12 +55,7 @@ function ModalForm({ show, onClose, title, fields, onSubmit }) {
                     {fields.map((field, index) => (
                         <Form.Group className="mb-3" key={index}>
                             <Form.Label>{field.label}</Form.Label>
-                            <Form.Control
-                                type={field.type || 'text'}
-                                name={field.name}
-                                value={formData[field.name] || ''}
-                                onChange={handleChange}
-                            />
+                            {renderField(field)}
                         </Form.Group>
                     ))}
                 </Form>
