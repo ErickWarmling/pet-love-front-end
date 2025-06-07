@@ -1,7 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddButton from '../../Grid/AddButton/AddButton';
 import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
+<<<<<<< Updated upstream
+=======
+import ModalForm from '../../Form/ModalForm';
+import { listConsultas } from '../../../api/consultas';
+>>>>>>> Stashed changes
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -11,7 +16,7 @@ const columns = [
     { header: 'Veterinário', accessor: 'veterinary' },
 ];
 
-const data = [
+/* const data = [
     {
         id: 1,
         owner: 'Lucas Silva',
@@ -47,17 +52,52 @@ const data = [
         date: '2024-10-03',
         veterinary: 'Dra. Camila Rocha'
     }
-];
+]; */
 
 
 function ListConsultas() {
+<<<<<<< Updated upstream
 
     const [filteredData, setFilteredData] = useState(data);
+=======
+    const [filteredData, setFilteredData] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+>>>>>>> Stashed changes
 
-    const applyFilter = (filters) => {
+    useEffect(() => {
+        async function fetchData() {
+            setFilteredData(await getConsultas())
+        }
+        fetchData();
+    }, []);
+
+    async function getConsultas() {
+        try {
+            const resposta = await listConsultas();
+            const responseData = resposta.data.map((item) => (
+                {
+                    id: item.id,
+                    owner: '',
+                    pet: item.petId,
+                    date: item.dataHora,
+                    veterinary: item.funcionarioId
+                }
+            ));
+            return responseData;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const applyFilter = async function (filters) {
+        const data = await getConsultas();
         const filtered = data.filter(item =>
             Object.entries(filters).every(([key, val]) =>
-                val === '' || (item[key] || '').toLowerCase().includes(val.toLowerCase())
+                val === '' ||
+                String(item[key] ?? '')
+                    .toLowerCase()
+                    .includes(val.toLowerCase())
             )
         );
         setFilteredData(filtered);

@@ -1,7 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddButton from '../../Grid/AddButton/AddButton';
 import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
+<<<<<<< Updated upstream
+=======
+import ModalForm from '../../Form/ModalForm';
+import { listFuncionarios } from '../../../api/funcionarios';
+>>>>>>> Stashed changes
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -9,42 +14,47 @@ const columns = [
     { header: 'Função', accessor: 'function' },
 ];
 
-const data = [
-    {
-        id: 1,
-        employee: 'Roberta Lima',
-        function: 'Recepcionista'
-    },
-    {
-        id: 2,
-        employee: 'Diego Martins',
-        function: 'Veterinário'
-    },
-    {
-        id: 3,
-        employee: 'Larissa Souza',
-        function: 'Tosadora'
-    },
-    {
-        id: 4,
-        employee: 'Bruno Oliveira',
-        function: 'Administrador'
-    },
-    {
-        id: 5,
-        employee: 'Camila Rocha',
-        function: 'Auxiliar de Limpeza'
-    }
-];
-
 function ListFuncionarios() {
+<<<<<<< Updated upstream
 
     const [filteredData, setFilteredData] = useState(data);
+=======
+    const [filteredData, setFilteredData] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+>>>>>>> Stashed changes
 
-    const applyFilter = (filters) => {
+    useEffect(() => {
+        async function fetchData() {
+            setFilteredData(await getFuncionarios())
+        }
+        fetchData();
+    }, []);
+
+    async function getFuncionarios() {
+        try {
+            const resposta = await listFuncionarios();
+            const responseData = resposta.data.map((dono) => (
+                {
+                    id: dono.id,
+                    employee: dono.nome,
+                    function: dono.funcao,
+                }
+            ));
+            return responseData;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const applyFilter = async function (filters) {
+        const data = await getConsultas();
         const filtered = data.filter(item =>
             Object.entries(filters).every(([key, val]) =>
-                val === '' || (item[key] || '').toLowerCase().includes(val.toLowerCase())
+                val === '' ||
+                String(item[key] ?? '')
+                    .toLowerCase()
+                    .includes(val.toLowerCase())
             )
         );
         setFilteredData(filtered);

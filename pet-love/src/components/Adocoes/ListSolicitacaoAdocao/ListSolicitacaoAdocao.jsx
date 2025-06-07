@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddButton from '../../Grid/AddButton/AddButton';
 import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
+import { listAdocoes } from '../../../api/adocoes';
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -11,52 +12,43 @@ const columns = [
     { header: 'Status', accessor: 'status' },
 ];
 
-const data = [
-    {
-        id: 1,
-        person: 'Lucas Silva',
-        pet: 'Rex',
-        date: '2024-10-15',
-        status: 'Pendente'
-    },
-    {
-        id: 2,
-        person: 'Ana Costa',
-        pet: 'Mimi',
-        date: '2024-10-16',
-        status: 'Confirmado'
-    },
-    {
-        id: 3,
-        person: 'João Pereira',
-        pet: 'Thor',
-        date: '2024-10-17',
-        status: 'Cancelado'
-    },
-    {
-        id: 4,
-        person: 'Mariana Rocha',
-        pet: 'Luna',
-        date: '2024-10-18',
-        status: 'Confirmado'
-    },
-    {
-        id: 5,
-        person: 'Carlos Almeida',
-        pet: 'Max',
-        date: '2024-10-19',
-        status: 'Pendente'
-    }
-];
-
 function ListSolicitacaoAdocao() {
+    const [filteredData, setFilteredData] = useState([]);
 
-    const [filteredData, setFilteredData] = useState(data);
+    useEffect(() => {
+        async function fetchData() {
+            setFilteredData(await getAdocoes())
+        }
+        fetchData();
+    }, []);
 
-    const applyFilter = (filters) => {
+    async function getAdocoes() {
+        try {
+            const resposta = await listAdocoes();
+            const responseData = resposta.data.map((item) => (
+                {
+                    id: item.id,
+                    person: item.pessoaId,
+                    pet: item.petId,
+                    date: item.dataHora,
+                    status: item.status
+                }
+            ));
+            return responseData;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const applyFilter = async function (filters) {
+        const data = await getAdocoes();
         const filtered = data.filter(item =>
             Object.entries(filters).every(([key, val]) =>
-                val === '' || (item[key] || '').toLowerCase().includes(val.toLowerCase())
+                val === '' ||
+                String(item[key] ?? '')
+                    .toLowerCase()
+                    .includes(val.toLowerCase())
             )
         );
         setFilteredData(filtered);
