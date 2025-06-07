@@ -2,11 +2,7 @@ import { useEffect, useState } from 'react';
 import AddButton from '../../Grid/AddButton/AddButton';
 import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
-<<<<<<< Updated upstream
-=======
-import ModalForm from '../../Form/ModalForm';
 import { listFuncionarios } from '../../../api/funcionarios';
->>>>>>> Stashed changes
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -15,13 +11,7 @@ const columns = [
 ];
 
 function ListFuncionarios() {
-<<<<<<< Updated upstream
-
-    const [filteredData, setFilteredData] = useState(data);
-=======
     const [filteredData, setFilteredData] = useState([]);
-    const [showModal, setShowModal] = useState(false);
->>>>>>> Stashed changes
 
     useEffect(() => {
         async function fetchData() {
