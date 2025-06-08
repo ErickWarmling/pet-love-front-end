@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
-function ModalForm({ show, onClose, title, fields, onSubmit }) {
+function ModalForm({ show, onClose, title, fields, onSubmit, initialData = {} }) {
     const [formData, setFormData] = useState({});
+
+    useEffect(() => {
+        setFormData(initialData || {});
+    }, [initialData, show]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -15,7 +19,7 @@ function ModalForm({ show, onClose, title, fields, onSubmit }) {
         onClose();
     };
 
-        const renderField = (field) => {
+    const renderField = (field) => {
         const commonProps = {
             name: field.name,
             value: formData[field.name] || '',

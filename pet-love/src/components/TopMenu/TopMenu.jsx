@@ -14,10 +14,10 @@ function TopMenu() {
                     <button className="btn me-2" onClick={() => setSidebarOpen(true)}>
                         <FontAwesomeIcon icon={faBars} size="lg" />
                     </button>
-                    <img src="../../public/logo.png" alt="Logo" style={{ height: '50px' }} />
+                    <img src="/logo.png" alt="Logo" style={{ height: '50px' }} />
                 </div>
                 <div className="col-2 d-flex justify-content-end">
-                    <img src="../../public/perfil.png" alt="Logo" style={{ height: '50px' }} />
+                    <img src="/perfil.png" alt="Logo" style={{ height: '50px' }} />
                 </div>
             </nav>
 

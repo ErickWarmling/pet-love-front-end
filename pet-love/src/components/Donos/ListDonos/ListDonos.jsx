@@ -3,7 +3,7 @@ import AddButton from '../../Grid/AddButton/AddButton';
 import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
 import ModalForm from '../../Form/ModalForm';
-import { listDonos } from '../../../api/donos';
+import { createDono, deleteDono, listDonos, updateDono } from '../../../api/donos';
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -17,13 +17,15 @@ const columns = [
 function ListDonos() {
     const [filteredData, setFilteredData] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [atualizar, setAtualizar] = useState(false);
+    const [selectedDono, setSelectedDono] = useState(null);
 
     useEffect(() => {
         async function fetchData() {
             setFilteredData(await getDonos())
         }
         fetchData();
-    }, []);
+    }, [atualizar]);
 
     async function getDonos() {
         try {
@@ -46,7 +48,7 @@ function ListDonos() {
     }
 
     const applyFilter = async function (filters) {
-        const data = await getConsultas();
+        const data = await getDonos();
         const filtered = data.filter(item =>
             Object.entries(filters).every(([key, val]) =>
                 val === '' ||
@@ -58,10 +60,38 @@ function ListDonos() {
         setFilteredData(filtered);
     };
 
-    const handleAdd = (newPerson) => {
-        const newId = data.length ? Math.max(...data.map(d => d.id)) + 1 : 1;
-        setData(prev => [...prev, { id: newId, ...newPerson }]);
+    const handleSubmit = (formData) => {
+        const data = {
+            "nome": formData.name,
+            "cpf": formData.cpf,
+            "telefone": formData.phone,
+            "cidade": formData.city,
+            "email": formData.email
+        }
+
+        const apiCall = selectedDono
+            ? updateDono(selectedDono.id, data)
+            : createDono(data);
+
+        apiCall.
+            then(response => {
+                console.error('Resposta:', response);
+                setAtualizar(prev => !prev);
+            })
+            .catch(error => {
+                console.error('Erro na requisição:', error);
+            });
     };
+
+    const handleDelete = (person) => {
+        deleteDono(person.id)
+            .then(() => {
+                setAtualizar(prev => !prev);
+            })
+            .catch(error => {
+                console.error('Erro na requisição:', error);
+            });
+    }
 
     const formFields = [
         { name: 'name', label: 'Nome' },
@@ -80,7 +110,10 @@ function ListDonos() {
                         <h2 className="m-0">Donos</h2>
                     </div>
                     <div className="col-auto">
-                        <AddButton text="Novo Dono" onClick={() => setShowModal(true)} />
+                        <AddButton text="Novo Dono" onClick={() => {
+                            setSelectedDono(null);
+                            setShowModal(true);
+                        }} />
                     </div>
                 </div>
 
@@ -94,17 +127,42 @@ function ListDonos() {
                 {/* Grid row */}
                 <div className="row">
                     <div className="col">
-                        <GridContent data={filteredData} columns={columns} />
+                        <GridContent
+                            data={filteredData}
+                            columns={columns}
+                            renderActions={(row) => (
+                                <>
+                                    <button
+                                        className="btn btn-sm btn-primary me-2"
+                                        onClick={() => {
+                                            setSelectedDono(row);
+                                            setShowModal(true);
+                                        }}
+                                    >
+                                        Editar
+                                    </button>
+                                    <button
+                                        className="btn btn-sm btn-danger"
+                                        onClick={() => handleDelete(row)}
+                                    >
+                                        Excluir
+                                    </button>
+                                </>
+                            )} />
                     </div>
                 </div>
 
                 {/* Modal form */}
                 <ModalForm
                     show={showModal}
-                    onClose={() => setShowModal(false)}
-                    title="Novo Dono"
+                    onClose={() => {
+                        setShowModal(false);
+                        setSelectedDono(null);
+                    }}
+                    title={selectedDono ? 'Editar Dono' : 'Novo Dono'}
                     fields={formFields}
-                    onSubmit={handleAdd}
+                    onSubmit={handleSubmit}
+                    initialData={selectedDono}
                 />
             </div>
         </section>
