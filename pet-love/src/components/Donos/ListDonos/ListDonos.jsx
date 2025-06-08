@@ -74,8 +74,7 @@ function ListDonos() {
             : createDono(data);
 
         apiCall.
-            then(response => {
-                console.error('Resposta:', response);
+            then(() => {
                 setAtualizar(prev => !prev);
             })
             .catch(error => {

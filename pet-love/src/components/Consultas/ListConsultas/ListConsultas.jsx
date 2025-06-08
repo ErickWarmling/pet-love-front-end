@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import AddButton from '../../Grid/AddButton/AddButton';
 import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
-import { listConsultas } from '../../../api/consultas';
+import { createConsulta, deleteConsulta, listConsultas, updateConsulta } from '../../../api/consultas';
 import ModalForm from '../../Form/ModalForm';
+import { listPets } from '../../../api/pets';
+import { listFuncionarios } from '../../../api/funcionarios';
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -15,13 +17,45 @@ const columns = [
 function ListConsultas() {
     const [filteredData, setFilteredData] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [atualizar, setAtualizar] = useState(false);
+    const [setselectedConsulta, setsetselectedConsulta] = useState(null);
+    const [petsOptions, setPetsOptions] = useState([]);
+    const [vetsOptions, setVetsOptions] = useState([]);
 
     useEffect(() => {
         async function fetchData() {
             setFilteredData(await getConsultas())
+            await fetchPets();
+            await fetchVets();
         }
         fetchData();
-    }, []);
+    }, [atualizar]);
+
+    async function fetchPets() {
+        try {
+            const resposta = await listPets();
+            const options = resposta.data.map((pet) => ({
+                value: pet.id,
+                label: pet.nome
+            }));
+            setPetsOptions(options);
+        } catch (error) {
+            console.log('Erro ao buscar pets:', error);
+        }
+    }
+
+    async function fetchVets() {
+        try {
+            const resposta = await listFuncionarios();
+            const options = resposta.data.map((vet) => ({
+                value: vet.id,
+                label: vet.nome
+            }));
+            setVetsOptions(options);
+        } catch (error) {
+            console.log('Erro ao buscar veterinários:', error);
+        }
+    }
 
     async function getConsultas() {
         try {
@@ -55,25 +89,46 @@ function ListConsultas() {
         setFilteredData(filtered);
     };
 
-    const handleAdd = (newConsultation) => {
-        const newId = data.length ? Math.max(...data.map(d => d.id)) +1 : 1;
-        setData(prev => [...prev, { id: newId, ... newConsultation }]);
+    const handleSubmit = (formData) => {
+        const data = {
+            "dataHora": "2025-05-18T14:30:00",
+            "observacoes": formData.description,
+            "valor": formData.value,
+            "funcionarioId": formData.veterinary,
+            "petId": formData.pet
+        }
+
+        const apiCall = setselectedConsulta
+            ? updateConsulta(setselectedConsulta.id, data)
+            : createConsulta(data);
+
+        apiCall.
+            then(response => {
+                setAtualizar(prev => !prev);
+            })
+            .catch(error => {
+                console.error('Erro na requisição:', error);
+            });
     };
 
-   const formFields = [
-    { name: 'pet', label: 'Pet', type: 'select', options: ['Rex', 'Mimi', 'Thor', 'Luna', 'Max'] },
-    { name: 'veterinary', label: 'Veterinário', type: 'select', options: [
-        'Dra. Roberta Lima',
-        'Dr. Diego Martins',
-        'Dra. Larissa Souza',
-        'Dr. Bruno Oliveira',
-        'Dra. Camila Rocha'
-    ]},
-    { name: 'date', label: 'Data', type: 'date' },
-    { name: 'time', label: 'Horário', type: 'time' },
-    { name: 'description', label: 'Descrição', type: 'textarea', rows: 4 },
-    { name: 'value', label: 'Valor', type: 'number' },
-];
+    const handleDelete = (consulta) => {
+        deleteConsulta(consulta.id)
+            .then(() => {
+                setAtualizar(prev => !prev);
+            })
+            .catch(error => {
+                console.error('Erro na requisição:', error);
+            });
+    }
+
+    const formFields = [
+        { name: 'pet', label: 'Pet', type: 'select', options: petsOptions },
+        { name: 'veterinary', label: 'Veterinário', type: 'select', options: vetsOptions },
+        { name: 'date', label: 'Data', type: 'date' },
+        { name: 'time', label: 'Horário', type: 'time' },
+        { name: 'description', label: 'Descrição', type: 'textarea', rows: 4 },
+        { name: 'value', label: 'Valor', type: 'number' },
+    ];
 
     return (
         <section className="ListConsultas py-4">
@@ -84,7 +139,10 @@ function ListConsultas() {
                         <h2 className="m-0">CONSULTAS</h2>
                     </div>
                     <div className="col-auto">
-                        <AddButton text="Nova Consulta" onClick={() => setShowModal(true)} />
+                        <AddButton text="Nova Consulta" onClick={() => {
+                            setsetselectedConsulta(null);
+                            setShowModal(true);
+                        }} />
                     </div>
                 </div>
 
@@ -98,17 +156,42 @@ function ListConsultas() {
                 {/* Grid row */}
                 <div className="row">
                     <div className="col">
-                        <GridContent data={filteredData} columns={columns} />
+                        <GridContent
+                            data={filteredData}
+                            columns={columns}
+                            renderActions={(row) => (
+                                <>
+                                    <button
+                                        className="btn btn-sm btn-primary me-2"
+                                        onClick={() => {
+                                            setsetselectedConsulta(row);
+                                            setShowModal(true);
+                                        }}
+                                    >
+                                        Editar
+                                    </button>
+                                    <button
+                                        className="btn btn-sm btn-danger"
+                                        onClick={() => handleDelete(row)}
+                                    >
+                                        Excluir
+                                    </button>
+                                </>
+                            )} />
                     </div>
                 </div>
 
                 {/* Modal Form */}
                 <ModalForm
                     show={showModal}
-                    onClose={() => setShowModal(false)}
-                    title="Nova Consulta"
+                    onClose={() => {
+                        setShowModal(false);
+                        setsetselectedConsulta(null);
+                    }}
+                    title={setselectedConsulta ? 'Editar Consulta' : 'Novo Consulta'}
                     fields={formFields}
-                    onSubmit={handleAdd}
+                    onSubmit={handleSubmit}
+                    initialData={setselectedConsulta}
                 />
             </div>
         </section>

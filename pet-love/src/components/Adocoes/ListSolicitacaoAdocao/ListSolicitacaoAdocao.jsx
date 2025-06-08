@@ -74,7 +74,28 @@ function ListSolicitacaoAdocao() {
                 {/* Grid row */}
                 <div className="row">
                     <div className="col">
-                        <GridContent data={filteredData} columns={columns} />
+                        <GridContent
+                            data={filteredData}
+                            columns={columns}
+                            renderActions={(row) => (
+                                <>
+                                    <button
+                                        className="btn btn-sm btn-primary me-2"
+                                        onClick={() => {
+                                            setSelectedDono(row);
+                                            setShowModal(true);
+                                        }}
+                                    >
+                                        Aprovar
+                                    </button>
+                                    <button
+                                        className="btn btn-sm btn-danger"
+                                        onClick={() => handleDelete(row)}
+                                    >
+                                        Recusar
+                                    </button>
+                                </>
+                            )} />
                     </div>
                 </div>
             </div>
