@@ -22,15 +22,27 @@ function ModalForm({ show, onClose, title, fields, onSubmit, initialData = {} })
     const renderField = (field) => {
         const commonProps = {
             name: field.name,
-            value: formData[field.name] || '',
+            value: field.multiple
+                ? formData[field.name] || []
+                : formData[field.name] || '',
             onChange: handleChange
         };
 
         switch (field.type) {
             case 'select':
                 return (
-                    <Form.Select {...commonProps}>
-                        <option value="">Selecione</option>
+                    <Form.Select
+                        {...commonProps}
+                        multiple={field.multiple}
+                        onChange={(e) => {
+                            const selected = Array.from(e.target.selectedOptions).map(option => option.value);
+                            setFormData(prev => ({
+                                ...prev,
+                                [field.name]: field.multiple ? selected : e.target.value
+                            }));
+                        }}
+                    >
+                        {!field.multiple && <option value="">Selecione</option>}
                         {field.options?.map((option, i) => (
                             <option key={i} value={option.value || option}>
                                 {option.label || option}

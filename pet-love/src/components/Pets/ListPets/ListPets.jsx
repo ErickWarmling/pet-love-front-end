@@ -110,9 +110,10 @@ function ListPets() {
             foto: formData.image,
             especie: { id: formData.type },
             raca: { id: formData.race },
-            donos: formData.owner ? [
-                { pessoaId: formData.owner, principal: true }
-            ] : []
+            donos: formData.owner?.map(id => ({
+                pessoaId: id,
+                principal: false
+            })) || []
         };
 
         const apiCall = selectedPet
@@ -134,7 +135,7 @@ function ListPets() {
 
     const formFields = [
         { name: 'name', label: 'Nome' },
-        { name: 'owner', label: 'Dono', type: 'select', options: donosOptions },
+        { name: 'owner', label: 'Dono', type: 'select', options: donosOptions, multiple: true },
         { name: 'type', label: 'Tipo', type: 'select', options: especiesOptions },
         { name: 'race', label: 'Raça', type: 'select', options: racasOptions },
         { name: 'date_birth', label: 'Data de Nascimento', type: 'date' },
@@ -172,10 +173,10 @@ function ListPets() {
                                 const petToEdit = {
                                     id: row.id,
                                     name: row.name,
-                                    owner: donosOptions.find(o => o.label === row.owner)?.value || '',
+                                    owner: rawData.find(p => p.id === row.id)?.owner || [],
                                     type: especiesOptions.find(e => e.label === row.type)?.value || '',
                                     race: racasOptions.find(r => r.label === row.race)?.value || '',
-                                    date_birth: row.date_birth.split('/').reverse().join('-'), // para o input date
+                                    date_birth: row.date_birth.split('/').reverse().join('-'),
                                     observation: row.observation,
                                     image: row.image
                                 };
