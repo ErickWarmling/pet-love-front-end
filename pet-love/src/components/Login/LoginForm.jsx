@@ -52,6 +52,7 @@ function LoginForm({ onSubmit }) {
                         checked={formData.perfil === 1}
                         onChange={handleChange}
                         inline
+                        required
                     />
                     <Form.Check
                         type="radio"
@@ -61,6 +62,7 @@ function LoginForm({ onSubmit }) {
                         checked={formData.perfil === 2}
                         onChange={handleChange}
                         inline
+                        required
                     />
                 </div>
             </Form.Group>

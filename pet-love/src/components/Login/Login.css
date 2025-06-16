@@ -1,0 +1,14 @@
+:root {
+    overflow: hidden;
+}
+
+.pageLogin{
+    background-color: #9FCDB4;
+    height: 100vh;
+    display: flex;
+}
+
+h1 {
+    color: #075B01;
+}
+
