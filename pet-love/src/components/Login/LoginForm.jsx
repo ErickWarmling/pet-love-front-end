@@ -66,9 +66,9 @@ function LoginForm({ onSubmit }) {
                     />
                 </div>
             </Form.Group>
-            <button className="btn btn-primary enter-button" type="submit">
+           <Button type="submit" className="w-100 enter-button">
                 ENTRAR
-            </button>
+            </Button>
         </Form>
     );
 }
