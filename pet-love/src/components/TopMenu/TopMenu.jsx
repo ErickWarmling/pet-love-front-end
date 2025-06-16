@@ -34,6 +34,7 @@ function TopMenu() {
                     <li><a href="/donos" className="d-block py-2 text-decoration-none">Cadastrar Dono</a></li>
                     <li><a href="/pets" className="d-block py-2 text-decoration-none">Cadastrar Pet</a></li>
                     <li><a href="/consultas" className="d-block py-2 text-decoration-none">Cadastrar Consulta</a></li>
+                    <li><a href="/usuarios" className="d-block py-2 text-decoration-none">Cadastrar Usuários</a></li>
                     <li><a href="/adocoes" className="d-block py-2 text-decoration-none">Adoções</a></li>
                 </ul>
             </div>
