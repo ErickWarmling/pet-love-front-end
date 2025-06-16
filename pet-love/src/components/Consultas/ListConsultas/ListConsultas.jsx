@@ -7,6 +7,12 @@ import ModalForm from '../../Form/ModalForm';
 import { listPets } from '../../../api/pets';
 import { listFuncionarios } from '../../../api/funcionarios';
 
+const formatDate = (dateString) => {
+    const [year, month, day] = dateString.split('-');
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString('pt-BR');
+};
+
 const columns = [
     { header: 'ID', accessor: 'id' },
     { header: 'Pet', accessor: 'pet' },
@@ -15,88 +21,88 @@ const columns = [
 ];
 
 function ListConsultas() {
+    const [rawData, setRawData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [atualizar, setAtualizar] = useState(false);
     const [setselectedConsulta, setsetselectedConsulta] = useState(null);
     const [petsOptions, setPetsOptions] = useState([]);
     const [vetsOptions, setVetsOptions] = useState([]);
+    const [optionsLoaded, setOptionsLoaded] = useState(false);
 
     useEffect(() => {
-        async function fetchData() {
-            setFilteredData(await getConsultas())
-            await fetchPets();
-            await fetchVets();
-        }
-        fetchData();
-    }, [atualizar]);
+        async function fetchOptions() {
+            try {
+                const [petsRes, vetsRes] = await Promise.all([
+                    listPets(),
+                    listFuncionarios()
+                ]);
 
-    async function fetchPets() {
-        try {
-            const resposta = await listPets();
-            const options = resposta.data.map((pet) => ({
-                value: pet.id,
-                label: pet.nome
-            }));
-            setPetsOptions(options);
-        } catch (error) {
-            console.log('Erro ao buscar pets:', error);
-        }
-    }
+                setPetsOptions(petsRes.data.map(p => ({ value: p.id, label: p.nome })));
+                setVetsOptions(vetsRes.data.map(v => ({ value: v.id, label: v.nome })));
 
-    async function fetchVets() {
-        try {
-            const resposta = await listFuncionarios();
-            const options = resposta.data.map((vet) => ({
-                value: vet.id,
-                label: vet.nome
-            }));
-            setVetsOptions(options);
-        } catch (error) {
-            console.log('Erro ao buscar veterinários:', error);
+                setOptionsLoaded(true);
+            } catch (error) {
+                console.error('Erro ao carregar opções:', error);
+            }
         }
-    }
+        fetchOptions();
+    }, []);
 
-    async function getConsultas() {
-        try {
+    useEffect(() => {
+        if (!optionsLoaded) return;
+
+        async function fetchConsultas() {
             const resposta = await listConsultas();
-            const responseData = resposta.data.map((item) => (
-                {
-                    id: item.id,
-                    owner: '',
-                    pet: item.petId,
-                    date: item.dataHora,
-                    veterinary: item.funcionarioId
-                }
-            ));
-            return responseData;
-        } catch (error) {
-            console.log(error);
-            return [];
+            const consultas = resposta.data.map(consulta => ({
+                id: consulta.id,
+                pet: consulta.petId,
+                date: consulta.dataHora,
+                veterinary: consulta.funcionarioId,
+            }));
+
+            setRawData(consultas);
+            setFilteredData(formatConsultasData(consultas));
         }
+
+        fetchConsultas();
+    }, [optionsLoaded, atualizar]);
+
+    function formatConsultasData(consultas) {
+        debugger;
+        return consultas.map(consulta => ({
+            ...consulta,
+            pet: petsOptions.find(p => p.value === consulta.pet)?.label || 'Desconhecido',
+            veterinary: vetsOptions.find(v => v.value === consulta.veterinary)?.label || 'Desconhecido',
+            // date: formatDate(consulta.date)
+        }));
     }
 
-    const applyFilter = async function (filters) {
-        const data = await getConsultas();
-        const filtered = data.filter(item =>
-            Object.entries(filters).every(([key, val]) =>
-                val === '' ||
-                String(item[key] ?? '')
-                    .toLowerCase()
-                    .includes(val.toLowerCase())
-            )
+    const applyFilter = (filters) => {
+        const filtered = rawData.filter(item =>
+            Object.entries(filters).every(([key, val]) => {
+                if (!val) return true;
+                const itemValue = (item[key] ?? '').toString().toLowerCase();
+                return itemValue.includes(val.toLowerCase());
+            })
         );
-        setFilteredData(filtered);
+
+        setFilteredData(formatConsultasData(filtered));
     };
 
     const handleSubmit = (formData) => {
         const data = {
-            "dataHora": "2025-05-18T14:30:00",
-            "observacoes": formData.description,
-            "valor": formData.value,
-            "funcionarioId": formData.veterinary,
-            "petId": formData.pet
-        }
+            dataHora: formData.name,
+            dataNascimento: formData.date_birth,
+            observacoes: formData.observation,
+            foto: formData.image,
+            especie: { id: formData.type },
+            raca: { id: formData.race },
+            donos: formData.owner?.map(id => ({
+                pessoaId: id,
+                principal: false
+            })) || []
+        };
 
         const apiCall = setselectedConsulta
             ? updateConsulta(setselectedConsulta.id, data)
@@ -159,25 +165,34 @@ function ListConsultas() {
                         <GridContent
                             data={filteredData}
                             columns={columns}
-                            renderActions={(row) => (
-                                <>
-                                    <button
-                                        className="btn btn-sm btn-primary me-2"
-                                        onClick={() => {
-                                            setsetselectedConsulta(row);
-                                            setShowModal(true);
-                                        }}
-                                    >
-                                        Editar
-                                    </button>
-                                    <button
-                                        className="btn btn-sm btn-danger"
-                                        onClick={() => handleDelete(row)}
-                                    >
-                                        Excluir
-                                    </button>
-                                </>
-                            )} />
+                            renderActions={(row) => {
+                                const consultaToEdit = {
+                                    id: row.id,
+                                    veterinary: vetsOptions.find(o => o.label === row.veterinary)?.value || '',
+                                    pet: petsOptions.find(e => e.label === row.pet)?.value || '',
+                                    date: row.date.split('/').reverse().join('-'), // para o input date
+                                };
+                                return (
+                                    <>
+                                        <button
+                                            className="btn btn-sm btn-primary me-2"
+                                            onClick={() => {
+                                                setsetselectedConsulta(consultaToEdit);
+                                                setShowModal(true);
+                                            }}
+                                        >
+                                            Editar
+                                        </button>
+                                        <button
+                                            className="btn btn-sm btn-danger"
+                                            onClick={() => handleDelete(row)}
+                                        >
+                                            Excluir
+                                        </button>
+                                    </>
+                                );
+                            }}
+                        />
                     </div>
                 </div>
 
