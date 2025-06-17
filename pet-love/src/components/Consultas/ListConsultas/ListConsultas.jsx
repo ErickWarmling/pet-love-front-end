@@ -69,7 +69,6 @@ function ListConsultas() {
     }, [optionsLoaded, atualizar]);
 
     function formatConsultasData(consultas) {
-        debugger;
         return consultas.map(consulta => ({
             ...consulta,
             pet: petsOptions.find(p => p.value === consulta.pet)?.label || 'Desconhecido',
@@ -92,16 +91,11 @@ function ListConsultas() {
 
     const handleSubmit = (formData) => {
         const data = {
-            dataHora: formData.name,
-            dataNascimento: formData.date_birth,
-            observacoes: formData.observation,
-            foto: formData.image,
-            especie: { id: formData.type },
-            raca: { id: formData.race },
-            donos: formData.owner?.map(id => ({
-                pessoaId: id,
-                principal: false
-            })) || []
+            dataHora: "2025-05-18T14:30:00",
+            petId: formData.pet,
+            funcionarioId: formData.veterinary,
+            observacoes: formData.description,
+            valor: formData.value
         };
 
         const apiCall = setselectedConsulta

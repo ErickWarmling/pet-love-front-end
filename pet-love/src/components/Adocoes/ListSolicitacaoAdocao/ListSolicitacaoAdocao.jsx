@@ -1,8 +1,15 @@
 import { useEffect, useState } from 'react';
-import AddButton from '../../Grid/AddButton/AddButton';
 import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
 import { listAdocoes } from '../../../api/adocoes';
+import { listDonos } from '../../../api/donos';
+import { listPets } from '../../../api/pets';
+
+const formatDate = (dateString) => {
+    const [year, month, day] = dateString.split('-');
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString('pt-BR');
+};
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -13,45 +20,70 @@ const columns = [
 ];
 
 function ListSolicitacaoAdocao() {
+    const [rawData, setRawData] = useState([]);
+    const [petsOptions, setPetsOptions] = useState([]);
+    const [donosOptions, setDonosOptions] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
+    const [optionsLoaded, setOptionsLoaded] = useState(false);
 
     useEffect(() => {
-        async function fetchData() {
-            setFilteredData(await getAdocoes())
+        async function fetchOptions() {
+            try {
+                const [petsRes, donosRes] = await Promise.all([
+                    listPets(),
+                    listDonos()
+                ]);
+
+                setPetsOptions(petsRes.data.map(p => ({ value: p.id, label: p.nome })));
+                setDonosOptions(donosRes.data.map(v => ({ value: v.id, label: v.nome })));
+
+                setOptionsLoaded(true);
+            } catch (error) {
+                console.error('Erro ao carregar opções:', error);
+            }
         }
-        fetchData();
+        fetchOptions();
     }, []);
 
-    async function getAdocoes() {
-        try {
+    useEffect(() => {
+        if (!optionsLoaded) return;
+
+        async function fetchSolicitacoes() {
             const resposta = await listAdocoes();
-            const responseData = resposta.data.map((item) => (
-                {
-                    id: item.id,
-                    person: item.pessoaId,
-                    pet: item.petId,
-                    date: item.dataHora,
-                    status: item.status
-                }
-            ));
-            return responseData;
-        } catch (error) {
-            console.log(error);
-            return [];
+            const pets = resposta.data.map(adocao => ({
+                id: adocao.id,
+                person: adocao.pessoaId,
+                pet: adocao.petId,
+                date: adocao.dataHora,
+                status: adocao.status
+            }));
+
+            setRawData(pets);
+            setFilteredData(formatSolicitacoesData(pets));
         }
+
+        fetchSolicitacoes();
+    }, [optionsLoaded]);
+
+    function formatSolicitacoesData(solicitacoes) {
+        return solicitacoes.map(adocao => ({
+            ...adocao,
+            pet: petsOptions.find(p => p.value === adocao.pet)?.label || 'Desconhecido',
+            person: donosOptions.find(v => v.value === adocao.person)?.label || 'Desconhecido',
+            date: formatDate(adocao.date)
+        }));
     }
 
-    const applyFilter = async function (filters) {
-        const data = await getAdocoes();
-        const filtered = data.filter(item =>
-            Object.entries(filters).every(([key, val]) =>
-                val === '' ||
-                String(item[key] ?? '')
-                    .toLowerCase()
-                    .includes(val.toLowerCase())
-            )
+    const applyFilter = (filters) => {
+        const filtered = rawData.filter(item =>
+            Object.entries(filters).every(([key, val]) => {
+                if (!val) return true;
+                const itemValue = (item[key] ?? '').toString().toLowerCase();
+                return itemValue.includes(val.toLowerCase());
+            })
         );
-        setFilteredData(filtered);
+
+        setFilteredData(formatSolicitacoesData(filtered));
     };
 
     return (
