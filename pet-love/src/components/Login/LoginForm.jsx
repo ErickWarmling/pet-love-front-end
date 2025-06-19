@@ -6,19 +6,18 @@ function LoginForm({ onSubmit }) {
     const [formData, setFormData] = useState({
         email:'',
         senha:'',
-        perfil: null,
     });
 
     const handleChange = (e) => {
-        const { name, type, value, checked } = e.target;
-        setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : name === 'perfil' ? parseInt(value) : value }));
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value, }));
     };
 
     const handleSubmit = () => {
         e.preventDefault();
        onSubmit(formData);
-       setFormData({});
-    }
+       setFormData({email: '', senha: ''});
+    };
 
     return (
         <Form onSubmit={handleSubmit} className="login-form">
@@ -41,30 +40,6 @@ function LoginForm({ onSubmit }) {
                     onChange={handleChange}
                     required
                 />
-            </Form.Group>
-            <Form.Group className="mb-3">
-                <div className="radio">
-                    <Form.Check
-                        type="radio"
-                        name="perfil"
-                        value="1"
-                        label="Recepção"
-                        checked={formData.perfil === 1}
-                        onChange={handleChange}
-                        inline
-                        required
-                    />
-                    <Form.Check
-                        type="radio"
-                        name="perfil"
-                        value="2"
-                        label="Veterinário"
-                        checked={formData.perfil === 2}
-                        onChange={handleChange}
-                        inline
-                        required
-                    />
-                </div>
             </Form.Group>
            <Button type="submit" className="w-100 enter-button">
                 ENTRAR
