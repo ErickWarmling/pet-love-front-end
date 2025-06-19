@@ -7,6 +7,7 @@ import ModalForm from '../../Form/ModalForm';
 import { listDonos } from '../../../api/donos';
 import { listEspecies } from '../../../api/especies';
 import { listRacas } from '../../../api/racas';
+import { toast } from 'react-toastify';
 
 const formatDate = (dateString) => {
     const [year, month, day] = dateString.split('-');
@@ -114,6 +115,7 @@ function ListPets() {
                 pessoaId: id,
                 principal: false
             })) || []
+            // imagem não está sendo enviada por enquanto
         };
 
         const apiCall = selectedPet
@@ -129,8 +131,14 @@ function ListPets() {
 
     const handleDelete = (pet) => {
         deletePet(pet.id)
-            .then(() => setAtualizar(prev => !prev))
-            .catch(error => console.error('Erro na requisição:', error));
+            .then(() => {
+                setAtualizar(prev => !prev);
+                toast.success('Registro excluído com sucesso!');
+            })
+            .catch(error => {
+                const msg = `Erro ao excluir. Verifique se não há registros vinculados. Erro: ${error.response?.data?.message}`;
+                toast.error(msg);
+            });
     };
 
     const formFields = [
@@ -140,7 +148,7 @@ function ListPets() {
         { name: 'race', label: 'Raça', type: 'select', options: racasOptions },
         { name: 'date_birth', label: 'Data de Nascimento', type: 'date' },
         { name: 'observation', label: 'Observações', type: 'textarea', rows: 4 },
-        { name: 'image', label: 'Foto' }
+        // { name: 'image', label: 'Foto' } --> Retirado por enquanto
     ];
 
     return (

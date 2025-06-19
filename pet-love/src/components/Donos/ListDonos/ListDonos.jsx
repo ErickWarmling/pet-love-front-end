@@ -4,6 +4,8 @@ import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
 import ModalForm from '../../Form/ModalForm';
 import { createDono, deleteDono, listDonos, updateDono } from '../../../api/donos';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -84,11 +86,13 @@ function ListDonos() {
 
     const handleDelete = (person) => {
         deleteDono(person.id)
-            .then(() => {
+            .then((response) => {
                 setAtualizar(prev => !prev);
+                toast.success('Registro excluído com sucesso!');
             })
             .catch(error => {
-                console.error('Erro na requisição:', error);
+                const msg = `Erro ao excluir. Verifique se não há registros vinculados. Erro: ${error.response?.data?.message}` ;
+                toast.error(msg);
             });
     }
 
@@ -106,10 +110,10 @@ function ListDonos() {
                 {/* Header row */}
                 <div className="row align-items-center mb-3">
                     <div className="col">
-                        <h2 className="m-0">Donos</h2>
+                        <h2 className="m-0">PESSOAS</h2>
                     </div>
                     <div className="col-auto">
-                        <AddButton text="Novo Dono" onClick={() => {
+                        <AddButton text="Nova Pessoa" onClick={() => {
                             setSelectedDono(null);
                             setShowModal(true);
                         }} />
