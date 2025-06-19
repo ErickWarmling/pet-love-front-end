@@ -78,9 +78,11 @@ function ListDonos() {
         apiCall.
             then(() => {
                 setAtualizar(prev => !prev);
+                toast.success('Registro incluído com sucesso!');
             })
             .catch(error => {
-                console.error('Erro na requisição:', error);
+                const msg = `Erro ao incluir. Erro: ${error.response?.data?.message}`;
+                toast.error(msg);
             });
     };
 
@@ -91,7 +93,7 @@ function ListDonos() {
                 toast.success('Registro excluído com sucesso!');
             })
             .catch(error => {
-                const msg = `Erro ao excluir. Verifique se não há registros vinculados. Erro: ${error.response?.data?.message}` ;
+                const msg = `Erro ao excluir. Verifique se não há registros vinculados. Erro: ${error.response?.data?.message}`;
                 toast.error(msg);
             });
     }

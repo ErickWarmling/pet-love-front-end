@@ -4,6 +4,7 @@ import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
 import { createFuncionario, deleteFuncionario, listFuncionarios, updateFuncionario } from '../../../api/funcionarios';
 import ModalForm from '../../Form/ModalForm';
+import { toast } from 'react-toastify';
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -81,7 +82,8 @@ function ListFuncionarios() {
                 setAtualizar(prev => !prev);
             })
             .catch(error => {
-                console.error('Erro na requisição:', error);
+                const msg = `Erro ao incluir. Erro: ${error.response?.data?.message}`;
+                toast.error(msg);
             });
     };
 

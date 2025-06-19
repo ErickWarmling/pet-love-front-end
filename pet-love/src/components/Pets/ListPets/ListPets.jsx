@@ -181,7 +181,9 @@ function ListPets() {
                                 const petToEdit = {
                                     id: row.id,
                                     name: row.name,
-                                    owner: rawData.find(p => p.id === row.id)?.owner || [],
+                                    owner: Array.isArray(rawData.find(p => p.id === row.id)?.owner)
+                                        ? rawData.find(p => p.id === row.id)?.owner
+                                        : [],
                                     type: especiesOptions.find(e => e.label === row.type)?.value || '',
                                     race: racasOptions.find(r => r.label === row.race)?.value || '',
                                     date_birth: row.date_birth.split('/').reverse().join('-'),

@@ -6,18 +6,27 @@ import { createConsulta, deleteConsulta, listConsultas, updateConsulta } from '.
 import ModalForm from '../../Form/ModalForm';
 import { listPets } from '../../../api/pets';
 import { listFuncionarios } from '../../../api/funcionarios';
+import { toast } from 'react-toastify';
 
 const formatDate = (dateString) => {
-    const [year, month, day] = dateString.split('-');
-    const date = new Date(year, month - 1, day);
+    const date = new Date(dateString);
+    if (isNaN(date)) return 'Data inválida';
     return date.toLocaleDateString('pt-BR');
+};
+
+const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    if (isNaN(date)) return '';
+    return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 };
 
 const columns = [
     { header: 'ID', accessor: 'id' },
     { header: 'Pet', accessor: 'pet' },
-    { header: 'Data', accessor: 'date' },
+    { header: 'Data/Hora', accessor: 'date' },
     { header: 'Veterinário', accessor: 'veterinary' },
+    { header: 'Descrição', accessor: 'description' },
+    { header: 'Valor', accessor: 'value' },
 ];
 
 function ListConsultas() {
@@ -59,6 +68,8 @@ function ListConsultas() {
                 pet: consulta.petId,
                 date: consulta.dataHora,
                 veterinary: consulta.funcionarioId,
+                description: consulta.observacoes,
+                value: consulta.valor,
             }));
 
             setRawData(consultas);
@@ -73,7 +84,7 @@ function ListConsultas() {
             ...consulta,
             pet: petsOptions.find(p => p.value === consulta.pet)?.label || 'Desconhecido',
             veterinary: vetsOptions.find(v => v.value === consulta.veterinary)?.label || 'Desconhecido',
-            // date: formatDate(consulta.date)
+            date: `${formatDate(consulta.date)} ${formatTime(consulta.date)}`
         }));
     }
 
@@ -91,7 +102,7 @@ function ListConsultas() {
 
     const handleSubmit = (formData) => {
         const data = {
-            dataHora: "2025-05-18T14:30:00",
+            dataHora: `${formData.date}T${formData.time}`,
             petId: formData.pet,
             funcionarioId: formData.veterinary,
             observacoes: formData.description,
@@ -107,7 +118,8 @@ function ListConsultas() {
                 setAtualizar(prev => !prev);
             })
             .catch(error => {
-                console.error('Erro na requisição:', error);
+                const msg = `Erro ao incluir. Erro: ${error.response?.data?.message}`;
+                toast.error(msg);
             });
     };
 
@@ -160,11 +172,15 @@ function ListConsultas() {
                             data={filteredData}
                             columns={columns}
                             renderActions={(row) => {
+                                const [dataPart, timePart] = row.date.split(' ');
                                 const consultaToEdit = {
                                     id: row.id,
                                     veterinary: vetsOptions.find(o => o.label === row.veterinary)?.value || '',
                                     pet: petsOptions.find(e => e.label === row.pet)?.value || '',
-                                    date: row.date.split('/').reverse().join('-'), // para o input date
+                                    description: row.description,
+                                    value: row.value,
+                                    date: dataPart.split('/').reverse().join('-'), // Input tipo date precisa de yyyy-mm-dd
+                                    time: timePart || '', // Input tipo time
                                 };
                                 return (
                                     <>
