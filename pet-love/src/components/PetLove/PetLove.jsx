@@ -15,10 +15,9 @@ function App() {
     const hideMenu = location.pathname === "/login";
 
     return (
-        <div>
+        <>
             <ToastContainer position="top-right" autoClose={3000} />
             {!hideMenu && <TopMenu />}
-            <BrowserRouter>
                 <Routes>
                     <Route path="/funcionarios" element={<ListFuncionarios/>}></Route>
                     <Route path="/donos" element={<ListDonos/>}></Route>
@@ -28,8 +27,7 @@ function App() {
                     <Route path="/adocoes" element={<ListSolicitacaoAdocao/>}></Route>
                     <Route path="/login" element={<Login />}></Route>
                 </Routes>
-            </BrowserRouter>
-        </div>
+        </>
     )
 }
 

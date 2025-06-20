@@ -5,6 +5,7 @@ import FilterDropdown from "../Grid/FilterDropdown/FilterDropdown";
 import GridContent from "../Grid/GridContent/GridContent";
 import { createUsuario, deleteUsuario, listUsuarios, updateUsuario } from "../../api/usuarios";
 import { listDonos } from "../../api/donos";
+import { toast } from 'react-toastify';
 
 const columns = [
     { header: 'ID', accessor: 'id'},
@@ -19,70 +20,70 @@ function ListUsuarios() {
     const [atualizar, setAtualizar] = useState(false);
     const [selectedUsuario, setSelectedUsuario] = useState(null);
     const [pessoasOptions, setPessoasOptions] = useState([]);
+    const [optionsLoaded, setOptionsLoaded] = useState(false);
+    const [rawData, setRawData] = useState([]);
 
     useEffect(() => {
-        async function fetchData() {
-            setFilteredData(await getUsuarios())
-            await fetchPessoas();
-        }
-        fetchData();
-    }, [atualizar]);
+        async function fetchOptions() {
+            try {
+                const [pessoasRes] = await Promise.all([
+                    listDonos()
+                ]);
 
-    async function fetchPessoas() {
-        try {
-            const resposta = await listDonos();
-            const options = resposta.data.map((dono) => ({
-                value: dono.id,
-                label: dono.nome
-            }));
-            setPessoasOptions(options);
-        } catch (error) {
-            console.log('Erro ao buscar donos: ', error);
-        }
-    }
+                setPessoasOptions(pessoasRes.data.map(p => ({ value: p.id, label: p.nome })));
 
-    async function getUsuarios() {
-        try {
+                setOptionsLoaded(true);
+            } catch (error) {
+                console.error('Erro ao carregar pessoas: ', error);
+            }
+        }
+        fetchOptions();
+    }, []);
+
+    useEffect(() => {
+        if (!optionsLoaded) return;
+
+        async function fetchUsuarios() {
             const resposta = await listUsuarios();
-            const responseData = resposta.data.map((usuario) => (
-                {
-                    id: usuario.id,
-                    login: usuario.login,
-                    senha: usuario.senha,
-                    perfil: usuario.perfil,
-                    person: usuario.pessoaId,
-                }
-            ));
-            return responseData;
-        } catch (error) {
-            console.log(error);
-            return[];
-        }
-    }
-        
+            const pessoas = resposta.data.map(usuario => ({
+                id: usuario.id,
+                login: usuario.login,
+                senha: usuario.senha,
+                perfil: usuario.perfil,
+                person: usuario.pessoaId,
+            }));
 
-    const applyFilter = async function (filters) {
-        const data = await getUsuarios();
-        const filtered = data.filter(item =>
-            Object.entries(filters).every(([key, val]) =>
-                val === '' ||
-                String(item[key] ?? '')
-                    .toLowerCase()
-                    .includes(String(val).toLowerCase())
-            )
+            setRawData(pessoas);
+            setFilteredData(formatPessoasData(pessoas));
+        }
+
+        fetchUsuarios();
+    }, [optionsLoaded, atualizar]);
+
+    function formatPessoasData(usuarios) {
+        return usuarios.map(usuario => ({
+            ...usuario,
+            person: pessoasOptions.find(p => p.value === usuario.person)?.label || 'Desconhecido'
+        }));
+    }    
+
+    const applyFilter = (filters) => {
+        const filtered = rawData.filter(item =>
+            Object.entries(filters).every(([key, val]) => {
+                if (!val) return true; 
+                const itemValue = (item[key] ?? '').toString().toLowerCase();
+                return itemValue.includes(val.toLowerCase());
+            })
         );
-        setFilteredData(filtered);
+        setFilteredData(formatPessoasData(filtered));
     };
 
     const handleSubmit = (formData) => {
         const data = {
             "login": formData.login,
+            "senha": formData.password,
             "perfil": parseInt(formData.perfil),
             "pessoaId": formData.person
-        }
-
-        if (formData.password && formData.password.trim() !== '') {
-            data.senha = formData.password;
         }
 
         const apiCall = selectedUsuario
@@ -92,9 +93,15 @@ function ListUsuarios() {
             apiCall.
                 then(() => {
                     setAtualizar(prev => !prev);
+                    if (selectedUsuario) {
+                        toast.success('Usuário atualizado com sucesso!');
+                    } else {
+                        toast.success('Usuário cadastrado com sucesso!');
+                    }
                 })
                 .catch(error => {
-                    console.error('Erro na requisição: ', error);
+                    const msg = `Erro ao incluir. Erro: ${error.response?.data?.message}`;
+                    toast.error(msg);
                 });
     };
 
@@ -102,15 +109,17 @@ function ListUsuarios() {
         deleteUsuario(user.id)
             .then(() => {
                 setAtualizar(prev => !prev);
+                toast.success('Usuário excluído com sucesso!');
             })
             .catch(error => {
-                console.error('Erro na requisição: ', error);
+                const msg = `Erro ao excluir usuário. Erro: ${error.response?.data?.message}`;
+                toast.error(msg);
             });
     }
 
     const formFields = [
         { name: 'login', label: 'Login', type: 'text' },
-        { name: 'password', label: 'Senha', type: 'password' },
+        { name: 'password', label: 'Senha', type: 'password'},
         { name: 'perfil',  label: 'Perfil', type: 'select', 
             options: [
                 { value: 1, label: 'Recepção' },
@@ -149,12 +158,14 @@ function ListUsuarios() {
                         <GridContent 
                             data={filteredData} 
                             columns={columns}
-                            renderActions={(row) => (
+                            renderActions={(row) => {
+                                const pessoa = pessoasOptions.find(p => p.label === row.person);
+                                return (
                                 <>
                                     <button
                                         className="btn btn-sm btn-primary me-2"
                                         onClick={() => {
-                                            setSelectedUsuario(row);
+                                            setSelectedUsuario({ ...row, person: pessoa?.value || '' });
                                             setShowModal(true);
                                         }}
                                     >
@@ -167,7 +178,8 @@ function ListUsuarios() {
                                         Excluir
                                     </button>
                                 </>
-                            )}
+                                );
+                            }}
                         />
                     </div>
                 </div>

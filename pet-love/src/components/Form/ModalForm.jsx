@@ -33,6 +33,7 @@ function validarEmail(email) {
 function ModalForm({ show, onClose, title, fields, onSubmit, initialData = {} }) {
     const [formData, setFormData] = useState({});
     const [errors, setErrors] = useState({});
+    const isCreating = !initialData?.id;
 
     useEffect(() => {
         setFormData(initialData || {});
@@ -78,6 +79,22 @@ function ModalForm({ show, onClose, title, fields, onSubmit, initialData = {} })
         }
         if ('email' in formData && !validarEmail(formData.email || '')) {
             newErrors.email = 'Email inválido';
+        }
+
+        if (!formData.login || formData.login.trim() === '') {
+            newErrors.login = 'Login é obrigatório';
+        }
+
+        if (isCreating && (!formData.password || formData.password.trim() === '')) {
+            newErrors.password = 'Senha é obrigatória';
+        }
+
+        if (!formData.perfil || formData.perfil === '') {
+            newErrors.perfil = 'Selecione um perfil';
+        }
+
+        if (!formData.person || formData.person === '') {
+            newErrors.person = 'Selecione uma pessoa'
         }
 
         if (Object.keys(newErrors).length > 0) {
