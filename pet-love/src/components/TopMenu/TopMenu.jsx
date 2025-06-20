@@ -14,10 +14,10 @@ function TopMenu() {
                     <button className="btn me-2" onClick={() => setSidebarOpen(true)}>
                         <FontAwesomeIcon icon={faBars} size="lg" />
                     </button>
-                    <img src="../../public/logo.png" alt="Logo" style={{ height: '50px' }} />
+                    <img src="/logo.png" alt="Logo" style={{ height: '50px' }} />
                 </div>
                 <div className="col-2 d-flex justify-content-end">
-                    <img src="../../public/perfil.png" alt="Logo" style={{ height: '50px' }} />
+                    <img src="/perfil.png" alt="Logo" style={{ height: '50px' }} />
                 </div>
             </nav>
 
@@ -30,10 +30,10 @@ function TopMenu() {
                     </button>
                 </div>
                 <ul className="list-unstyled px-3 pt-3">
-                    <li><a href="/funcionarios" className="d-block py-2 text-decoration-none">Cadastrar Funcionário</a></li>
-                    <li><a href="/donos" className="d-block py-2 text-decoration-none">Cadastrar Dono</a></li>
-                    <li><a href="/pets" className="d-block py-2 text-decoration-none">Cadastrar Pet</a></li>
-                    <li><a href="/consultas" className="d-block py-2 text-decoration-none">Cadastrar Consulta</a></li>
+                    <li><a href="/funcionarios" className="d-block py-2 text-decoration-none">Funcionários</a></li>
+                    <li><a href="/donos" className="d-block py-2 text-decoration-none">Pessoas</a></li>
+                    <li><a href="/pets" className="d-block py-2 text-decoration-none">Pets</a></li>
+                    <li><a href="/consultas" className="d-block py-2 text-decoration-none">Consultas</a></li>
                     <li><a href="/adocoes" className="d-block py-2 text-decoration-none">Adoções</a></li>
                 </ul>
             </div>

@@ -2,34 +2,44 @@ import { useEffect, useState } from 'react';
 import AddButton from '../../Grid/AddButton/AddButton';
 import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
-import { listFuncionarios } from '../../../api/funcionarios';
+import { createFuncionario, deleteFuncionario, listFuncionarios, updateFuncionario } from '../../../api/funcionarios';
 import ModalForm from '../../Form/ModalForm';
+import { toast } from 'react-toastify';
 
 const columns = [
     { header: 'ID', accessor: 'id' },
     { header: 'Funcionário', accessor: 'employee' },
     { header: 'Função', accessor: 'function' },
+    { header: 'CRMV', accessor: 'crmv' },
 ];
 
 function ListFuncionarios() {
     const [filteredData, setFilteredData] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [atualizar, setAtualizar] = useState(false);
+    const [selectedFuncionario, setSelectedFuncionario] = useState(null);
 
     useEffect(() => {
         async function fetchData() {
             setFilteredData(await getFuncionarios())
         }
         fetchData();
-    }, []);
+    }, [atualizar]);
 
     async function getFuncionarios() {
         try {
             const resposta = await listFuncionarios();
-            const responseData = resposta.data.map((dono) => (
+            const responseData = resposta.data.map((funcionario) => (
                 {
-                    id: dono.id,
-                    employee: dono.nome,
-                    function: dono.funcao,
+                    id: funcionario.id,
+                    name: funcionario.nome,
+                    cpf: funcionario.cpf,
+                    city: funcionario.cidade,
+                    phone: funcionario.telefone,
+                    email: funcionario.email,
+                    employee: funcionario.nome,
+                    function: funcionario.funcao,
+                    crmv: funcionario.crmv,
                 }
             ));
             return responseData;
@@ -40,7 +50,7 @@ function ListFuncionarios() {
     }
 
     const applyFilter = async function (filters) {
-        const data = await getConsultas();
+        const data = await getFuncionarios();
         const filtered = data.filter(item =>
             Object.entries(filters).every(([key, val]) =>
                 val === '' ||
@@ -52,13 +62,43 @@ function ListFuncionarios() {
         setFilteredData(filtered);
     };
 
-    const handleAdd = (newEmployee) => {
-        const newId = data.length ? Math.max(...data.map(d => d.id)) +1 : 1;
-        setData(prev => [...prev, { id: newId, ...newEmployee}]);
+    const handleSubmit = (formData) => {
+        const data = {
+            "nome": formData.name,
+            "cpf": formData.cpf,
+            "cidade": formData.city,
+            "telefone": formData.phone,
+            "email": formData.email,
+            "crmv": formData.crmv,
+            "funcao": formData.function
+        }
+
+        const apiCall = selectedFuncionario
+            ? updateFuncionario(selectedFuncionario.id, data)
+            : createFuncionario(data);
+
+        apiCall.
+            then(() => {
+                setAtualizar(prev => !prev);
+            })
+            .catch(error => {
+                const msg = `Erro ao incluir. Erro: ${error.response?.data?.message}`;
+                toast.error(msg);
+            });
+    };
+
+    const handleDelete = (funcionario) => {
+        deleteFuncionario(funcionario.id)
+            .then(() => {
+                setAtualizar(prev => !prev);
+            })
+            .catch(error => {
+                console.error('Erro na requisição:', error);
+            });
     }
 
     const formFields = [
-        { name: 'name', label: 'Nome'  },
+        { name: 'name', label: 'Nome' },
         { name: 'cpf', label: 'CPF' },
         { name: 'city', label: 'Cidade' },
         { name: 'phone', label: 'Telefone' },
@@ -76,7 +116,10 @@ function ListFuncionarios() {
                         <h2 className="m-0">FUNCIONÁRIOS</h2>
                     </div>
                     <div className="col-auto">
-                        <AddButton text="Novo Funcionário" onClick={() => setShowModal(true)} />
+                        <AddButton text="Novo Funcionário" onClick={() => {
+                            setSelectedFuncionario(null);
+                            setShowModal(true);
+                        }} />
                     </div>
                 </div>
 
@@ -90,17 +133,42 @@ function ListFuncionarios() {
                 {/* Grid row */}
                 <div className="row">
                     <div className="col">
-                        <GridContent data={filteredData} columns={columns} />
+                        <GridContent
+                            data={filteredData}
+                            columns={columns}
+                            renderActions={(row) => (
+                                <>
+                                    <button
+                                        className="btn btn-sm btn-primary me-2"
+                                        onClick={() => {
+                                            setSelectedFuncionario(row);
+                                            setShowModal(true);
+                                        }}
+                                    >
+                                        Editar
+                                    </button>
+                                    <button
+                                        className="btn btn-sm btn-danger"
+                                        onClick={() => handleDelete(row)}
+                                    >
+                                        Excluir
+                                    </button>
+                                </>
+                            )} />
                     </div>
                 </div>
 
                 {/* Modal form */}
                 <ModalForm
                     show={showModal}
-                    onClose={() => setShowModal(false)}
-                    title="Novo Funcionário"
+                    onClose={() => {
+                        setShowModal(false);
+                        setSelectedFuncionario(null);
+                    }}
+                    title={selectedFuncionario ? 'Editar Funcionário' : 'Novo Funcionário'}
                     fields={formFields}
-                    onSubmit={handleAdd}
+                    onSubmit={handleSubmit}
+                    initialData={selectedFuncionario}
                 />
             </div>
         </section>

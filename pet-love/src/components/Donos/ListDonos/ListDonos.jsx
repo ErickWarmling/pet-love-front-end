@@ -3,7 +3,9 @@ import AddButton from '../../Grid/AddButton/AddButton';
 import GridContent from '../../Grid/GridContent/GridContent';
 import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
 import ModalForm from '../../Form/ModalForm';
-import { listDonos } from '../../../api/donos';
+import { createDono, deleteDono, listDonos, updateDono } from '../../../api/donos';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -17,13 +19,15 @@ const columns = [
 function ListDonos() {
     const [filteredData, setFilteredData] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [atualizar, setAtualizar] = useState(false);
+    const [selectedDono, setSelectedDono] = useState(null);
 
     useEffect(() => {
         async function fetchData() {
             setFilteredData(await getDonos())
         }
         fetchData();
-    }, []);
+    }, [atualizar]);
 
     async function getDonos() {
         try {
@@ -46,7 +50,7 @@ function ListDonos() {
     }
 
     const applyFilter = async function (filters) {
-        const data = await getConsultas();
+        const data = await getDonos();
         const filtered = data.filter(item =>
             Object.entries(filters).every(([key, val]) =>
                 val === '' ||
@@ -58,10 +62,41 @@ function ListDonos() {
         setFilteredData(filtered);
     };
 
-    const handleAdd = (newPerson) => {
-        const newId = data.length ? Math.max(...data.map(d => d.id)) + 1 : 1;
-        setData(prev => [...prev, { id: newId, ...newPerson }]);
+    const handleSubmit = (formData) => {
+        const data = {
+            "nome": formData.name,
+            "cpf": formData.cpf,
+            "telefone": formData.phone,
+            "cidade": formData.city,
+            "email": formData.email
+        }
+
+        const apiCall = selectedDono
+            ? updateDono(selectedDono.id, data)
+            : createDono(data);
+
+        apiCall.
+            then(() => {
+                setAtualizar(prev => !prev);
+                toast.success('Registro incluído com sucesso!');
+            })
+            .catch(error => {
+                const msg = `Erro ao incluir. Erro: ${error.response?.data?.message}`;
+                toast.error(msg);
+            });
     };
+
+    const handleDelete = (person) => {
+        deleteDono(person.id)
+            .then((response) => {
+                setAtualizar(prev => !prev);
+                toast.success('Registro excluído com sucesso!');
+            })
+            .catch(error => {
+                const msg = `Erro ao excluir. Verifique se não há registros vinculados. Erro: ${error.response?.data?.message}`;
+                toast.error(msg);
+            });
+    }
 
     const formFields = [
         { name: 'name', label: 'Nome' },
@@ -77,10 +112,13 @@ function ListDonos() {
                 {/* Header row */}
                 <div className="row align-items-center mb-3">
                     <div className="col">
-                        <h2 className="m-0">Donos</h2>
+                        <h2 className="m-0">PESSOAS</h2>
                     </div>
                     <div className="col-auto">
-                        <AddButton text="Novo Dono" onClick={() => setShowModal(true)} />
+                        <AddButton text="Nova Pessoa" onClick={() => {
+                            setSelectedDono(null);
+                            setShowModal(true);
+                        }} />
                     </div>
                 </div>
 
@@ -94,17 +132,42 @@ function ListDonos() {
                 {/* Grid row */}
                 <div className="row">
                     <div className="col">
-                        <GridContent data={filteredData} columns={columns} />
+                        <GridContent
+                            data={filteredData}
+                            columns={columns}
+                            renderActions={(row) => (
+                                <>
+                                    <button
+                                        className="btn btn-sm btn-primary me-2"
+                                        onClick={() => {
+                                            setSelectedDono(row);
+                                            setShowModal(true);
+                                        }}
+                                    >
+                                        Editar
+                                    </button>
+                                    <button
+                                        className="btn btn-sm btn-danger"
+                                        onClick={() => handleDelete(row)}
+                                    >
+                                        Excluir
+                                    </button>
+                                </>
+                            )} />
                     </div>
                 </div>
 
                 {/* Modal form */}
                 <ModalForm
                     show={showModal}
-                    onClose={() => setShowModal(false)}
-                    title="Novo Dono"
+                    onClose={() => {
+                        setShowModal(false);
+                        setSelectedDono(null);
+                    }}
+                    title={selectedDono ? 'Editar Dono' : 'Novo Dono'}
                     fields={formFields}
-                    onSubmit={handleAdd}
+                    onSubmit={handleSubmit}
+                    initialData={selectedDono}
                 />
             </div>
         </section>
