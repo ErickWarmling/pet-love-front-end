@@ -8,6 +8,7 @@ import ListFuncionarios from "../Funcionarios/ListFuncionarios/ListFuncionarios"
 import Login from "../Login/Login";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import Home from "../Home/Home";
 
 export default function PetLove() {
     return (
@@ -16,6 +17,7 @@ export default function PetLove() {
             <TopMenu></TopMenu>
             <BrowserRouter>
                 <Routes>
+                    <Route path="/" element={<Home />} />
                     <Route path="/funcionarios" element={<ListFuncionarios/>}></Route>
                     <Route path="/donos" element={<ListDonos/>}></Route>
                     <Route path="/pets" element={<ListPets/>}></Route>
