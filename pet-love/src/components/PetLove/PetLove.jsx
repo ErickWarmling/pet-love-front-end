@@ -9,6 +9,8 @@ import Login from "../Login/Login";
 import ListUsuarios from "../Usuarios/ListUsuarios";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import AuthProvider from "../Login/AuthProvider";
+import AuthenticatedRoute from "../Login/AuthenticatedRoute";
 
 function App() {
     const location = useLocation();
@@ -19,12 +21,12 @@ function App() {
             <ToastContainer position="top-right" autoClose={3000} />
             {!hideMenu && <TopMenu />}
                 <Routes>
-                    <Route path="/funcionarios" element={<ListFuncionarios/>}></Route>
-                    <Route path="/donos" element={<ListDonos/>}></Route>
-                    <Route path="/pets" element={<ListPets/>}></Route>
-                    <Route path="/consultas" element={<ListConsultas/>}></Route>
-                    <Route path="/usuarios" element={<ListUsuarios/>}></Route>
-                    <Route path="/adocoes" element={<ListSolicitacaoAdocao/>}></Route>
+                    <Route path="/funcionarios" element={<AuthenticatedRoute><ListFuncionarios/></AuthenticatedRoute>}></Route>
+                    <Route path="/donos" element={<AuthenticatedRoute><ListDonos/></AuthenticatedRoute>}></Route>
+                    <Route path="/pets" element={<AuthenticatedRoute><ListPets/></AuthenticatedRoute>}></Route>
+                    <Route path="/consultas" element={<AuthenticatedRoute><ListConsultas/></AuthenticatedRoute>}></Route>
+                    <Route path="/usuarios" element={<AuthenticatedRoute><ListUsuarios/></AuthenticatedRoute>}></Route>
+                    <Route path="/adocoes" element={<AuthenticatedRoute><ListSolicitacaoAdocao/></AuthenticatedRoute>}></Route>
                     <Route path="/login" element={<Login />}></Route>
                 </Routes>
         </>
@@ -33,8 +35,10 @@ function App() {
 
 export default function PetLove() {
     return (
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
+        <AuthProvider>
+            <BrowserRouter>
+                <App />
+            </BrowserRouter>
+        </AuthProvider>
     );
 }

@@ -1,21 +1,25 @@
 import LoginForm from "./LoginForm";
 import { useNavigate } from "react-router-dom";
-import { loginUsuario } from "../../api/usuarios";
 import { toast } from 'react-toastify';
 import './Login.css'
+import { useAutCtx } from "./AuthProvider";
 
 function Login() {
+    const { autenticar } = useAutCtx();
     const navigate = useNavigate();
 
     const handleLoginSubmit = async ({ usuario, senha }) => {
         try {
-            const loginDTO = {login: usuario, senha};
-            const response = await loginUsuario(loginDTO);
-            toast.success("Login efetuado com sucesso!");
-
-            navigate('/');
+            const sucesso = await autenticar(usuario, senha);
+            if (sucesso) {
+                toast.success("Login efetuado com sucesso!");
+                navigate('/');
+            } else {
+                toast.error("Login ou senha inválidos");
+            }
         } catch (error) {
-            toast.error("Login ou senha inválidos");
+            console.error("Erro no login: ", error);
+            toast.error("Ocorreu um erro. Por favor, tente novamente!")
         }
     }
 

@@ -26,7 +26,7 @@ function LoginForm({ onSubmit }) {
                 <Form.Control
                     type="text"
                     name="usuario"
-                    value={formData.email}
+                    value={formData.usuario}
                     onChange={handleChange}
                     required
                 />

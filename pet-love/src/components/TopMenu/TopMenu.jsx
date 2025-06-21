@@ -1,10 +1,19 @@
-import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faTimes, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import './TopMenu.css';
+import { useNavigate } from "react-router-dom";
+import { useAutCtx } from "../Login/AuthProvider";
 
 function TopMenu() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const { sair } = useAutCtx();
+    const navigate = useNavigate();
+
+    function handleLogout() {
+        sair();
+        navigate("/login", { replace: true });
+    }
 
     return (
         <>
@@ -36,6 +45,15 @@ function TopMenu() {
                     <li><a href="/consultas" className="d-block py-2 text-decoration-none">Consulta</a></li>
                     <li><a href="/usuarios" className="d-block py-2 text-decoration-none">Usuários</a></li>
                     <li><a href="/adocoes" className="d-block py-2 text-decoration-none">Adoções</a></li>
+                    <li>
+                        <button
+                            onClick={handleLogout}
+                            className="btn btn-link text-danger d-block py-2 w-100 text-start menu-logout-btn"
+                        >
+                            <FontAwesomeIcon icon={faRightFromBracket} className="me-2" />
+                            Sair
+                        </button>
+                    </li>
                 </ul>
             </div>
 
