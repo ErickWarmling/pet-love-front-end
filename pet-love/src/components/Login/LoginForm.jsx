@@ -4,7 +4,7 @@ import './LoginForm.css'
 
 function LoginForm({ onSubmit }) {
     const [formData, setFormData] = useState({
-        email:'',
+        usuario:'',
         senha:'',
     });
 
@@ -13,19 +13,19 @@ function LoginForm({ onSubmit }) {
         setFormData(prev => ({ ...prev, [name]: value, }));
     };
 
-    const handleSubmit = () => {
-        e.preventDefault();
+    const handleSubmit = (e) => {
+       e.preventDefault();
        onSubmit(formData);
-       setFormData({email: '', senha: ''});
+       setFormData({usuario: '', senha: ''});
     };
 
     return (
         <Form onSubmit={handleSubmit} className="login-form">
             <Form.Group className="mb-3">
-                <Form.Label>E-MAIL</Form.Label>
+                <Form.Label>USUÁRIO</Form.Label>
                 <Form.Control
-                    type="email"
-                    name="email"
+                    type="text"
+                    name="usuario"
                     value={formData.email}
                     onChange={handleChange}
                     required

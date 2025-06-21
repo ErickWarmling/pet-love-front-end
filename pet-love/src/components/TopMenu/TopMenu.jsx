@@ -30,11 +30,11 @@ function TopMenu() {
                     </button>
                 </div>
                 <ul className="list-unstyled px-3 pt-3">
-                    <li><a href="/funcionarios" className="d-block py-2 text-decoration-none">Cadastrar Funcionário</a></li>
-                    <li><a href="/donos" className="d-block py-2 text-decoration-none">Cadastrar Dono</a></li>
-                    <li><a href="/pets" className="d-block py-2 text-decoration-none">Cadastrar Pet</a></li>
-                    <li><a href="/consultas" className="d-block py-2 text-decoration-none">Cadastrar Consulta</a></li>
-                    <li><a href="/usuarios" className="d-block py-2 text-decoration-none">Cadastrar Usuários</a></li>
+                    <li><a href="/funcionarios" className="d-block py-2 text-decoration-none">Funcionário</a></li>
+                    <li><a href="/donos" className="d-block py-2 text-decoration-none">Dono</a></li>
+                    <li><a href="/pets" className="d-block py-2 text-decoration-none">Pet</a></li>
+                    <li><a href="/consultas" className="d-block py-2 text-decoration-none">Consulta</a></li>
+                    <li><a href="/usuarios" className="d-block py-2 text-decoration-none">Usuários</a></li>
                     <li><a href="/adocoes" className="d-block py-2 text-decoration-none">Adoções</a></li>
                 </ul>
             </div>
