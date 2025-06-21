@@ -13,7 +13,7 @@ function Login() {
             const sucesso = await autenticar(usuario, senha);
             if (sucesso) {
                 toast.success("Login efetuado com sucesso!");
-                navigate('/');
+                navigate('/home');
             } else {
                 toast.error("Login ou senha inválidos");
             }
