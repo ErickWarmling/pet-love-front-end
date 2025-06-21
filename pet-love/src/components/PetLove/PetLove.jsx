@@ -6,10 +6,13 @@ import ListConsultas from "../Consultas/ListConsultas/ListConsultas";
 import ListPets from "../Pets/ListPets/ListPets";
 import ListFuncionarios from "../Funcionarios/ListFuncionarios/ListFuncionarios";
 import Login from "../Login/Login";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function PetLove() {
     return (
         <div>
+            <ToastContainer position="top-right" autoClose={3000} />
             <TopMenu></TopMenu>
             <BrowserRouter>
                 <Routes>
