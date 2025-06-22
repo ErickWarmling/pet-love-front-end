@@ -213,7 +213,7 @@ function ListUsuarios() {
                         setShowConfirm(false);
                         setUsuarioExcluir(null);
                     }}
-                    message={`Tem certeza que deseja excluir o usuário "${usuarioExcluir?.login}"`}
+                    message={`Tem certeza que deseja excluir este usuário?`}
                 />
             </div>
         </section>
