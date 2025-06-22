@@ -8,6 +8,7 @@ import { listDonos } from '../../../api/donos';
 import { listEspecies } from '../../../api/especies';
 import { listRacas } from '../../../api/racas';
 import { toast } from 'react-toastify';
+import ConfirmModal from '../../ConfirmModal/ConfirmModal';
 
 const formatDate = (dateString) => {
     const [year, month, day] = dateString.split('-');
@@ -34,6 +35,8 @@ function ListPets() {
     const [especiesOptions, setEspeciesOptions] = useState([]);
     const [racasOptions, setRacasOptions] = useState([]);
     const [optionsLoaded, setOptionsLoaded] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [petExcluir, setPetExcluir] = useState(null);
 
     useEffect(() => {
         async function fetchOptions() {
@@ -203,7 +206,7 @@ function ListPets() {
                                         </button>
                                         <button
                                             className="btn btn-sm btn-danger"
-                                            onClick={() => handleDelete(row)}
+                                            onClick={() => { setPetExcluir(row); setShowConfirm(true) }}
                                         >
                                             Excluir
                                         </button>
@@ -226,6 +229,22 @@ function ListPets() {
                     initialData={selectedPet}
                 />
             </div>
+
+            <ConfirmModal
+                show={showConfirm}
+                onClose={() => {
+                    setShowConfirm(false);
+                    setPetExcluir(null)
+                }}
+                onConfirm={() => {
+                    if (petExcluir) {
+                        handleDelete(petExcluir);
+                    }
+                    setShowConfirm(false);
+                    setPetExcluir(null);
+                }}
+                message={`Tem certeza que deseja excluir este pet?`}
+            />
         </section>
     );
 }

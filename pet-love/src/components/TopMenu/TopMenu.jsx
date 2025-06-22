@@ -40,7 +40,7 @@ function TopMenu() {
                 </div>
                 <ul className="list-unstyled px-3 pt-3">
                     <li><a href="/funcionarios" className="d-block py-2 text-decoration-none">Funcionário</a></li>
-                    <li><a href="/donos" className="d-block py-2 text-decoration-none">Dono</a></li>
+                    <li><a href="/donos" className="d-block py-2 text-decoration-none">Pessoa</a></li>
                     <li><a href="/pets" className="d-block py-2 text-decoration-none">Pet</a></li>
                     <li><a href="/consultas" className="d-block py-2 text-decoration-none">Consulta</a></li>
                     <li><a href="/usuarios" className="d-block py-2 text-decoration-none">Usuários</a></li>

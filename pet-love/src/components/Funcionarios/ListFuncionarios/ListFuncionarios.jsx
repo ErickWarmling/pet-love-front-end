@@ -5,6 +5,7 @@ import FilterDropdown from '../../Grid/FilterDropdown/FilterDropdown';
 import { createFuncionario, deleteFuncionario, listFuncionarios, updateFuncionario } from '../../../api/funcionarios';
 import ModalForm from '../../Form/ModalForm';
 import { toast } from 'react-toastify';
+import ConfirmModal from '../../ConfirmModal/ConfirmModal';
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -18,6 +19,8 @@ function ListFuncionarios() {
     const [showModal, setShowModal] = useState(false);
     const [atualizar, setAtualizar] = useState(false);
     const [selectedFuncionario, setSelectedFuncionario] = useState(null);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [funcionarioExcluir, setFuncionarioExcluir] = useState(null);
 
     useEffect(() => {
         async function fetchData() {
@@ -80,6 +83,7 @@ function ListFuncionarios() {
         apiCall.
             then(() => {
                 setAtualizar(prev => !prev);
+                toast.success('Registro incluído com sucesso!');
             })
             .catch(error => {
                 const msg = `Erro ao incluir. Erro: ${error.response?.data?.message}`;
@@ -91,9 +95,11 @@ function ListFuncionarios() {
         deleteFuncionario(funcionario.id)
             .then(() => {
                 setAtualizar(prev => !prev);
+                toast.success('Registro excluído com sucesso!');
             })
             .catch(error => {
-                console.error('Erro na requisição:', error);
+                const msg = `Erro ao excluir. Verifique se não há registros vinculados. Erro: ${error.response?.data?.message}`;
+                toast.error(msg);
             });
     }
 
@@ -149,7 +155,7 @@ function ListFuncionarios() {
                                     </button>
                                     <button
                                         className="btn btn-sm btn-danger"
-                                        onClick={() => handleDelete(row)}
+                                        onClick={() => { setFuncionarioExcluir(row); setShowConfirm(true) }}
                                     >
                                         Excluir
                                     </button>
@@ -169,6 +175,22 @@ function ListFuncionarios() {
                     fields={formFields}
                     onSubmit={handleSubmit}
                     initialData={selectedFuncionario}
+                />
+
+                <ConfirmModal
+                    show={showConfirm}
+                    onClose={() => {
+                        setShowConfirm(false);
+                        setFuncionarioExcluir(null)
+                    }}
+                    onConfirm={() => {
+                        if (funcionarioExcluir) {
+                            handleDelete(funcionarioExcluir);
+                        }
+                        setShowConfirm(false);
+                        setFuncionarioExcluir(null);
+                    }}
+                    message={`Tem certeza que deseja excluir este funcionário?`}
                 />
             </div>
         </section>
