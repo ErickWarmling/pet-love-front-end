@@ -71,6 +71,19 @@ function ModalForm({ show, onClose, title, fields, onSubmit, initialData = {} })
     const handleSubmit = () => {
         const newErrors = {};
 
+        fields.forEach(field => {
+            const value = formData[field.name];
+
+            if (field.name === 'password' && isCreating && (!value || value.trim() === '')) {
+                newErrors[field.name] = 'Senha é obrigatória';
+                return;
+            }
+
+            if (field.required && (!value || value.trim?.() === '' || (Array.isArray(value) && value.length === 0))) {
+                newErrors[field.name] = `${field.label} é obrigatório`;
+            }
+        });
+
         if ('cpf' in formData && !validarCPF(formData.cpf || '')) {
             newErrors.cpf = 'CPF inválido';
         }
@@ -79,22 +92,6 @@ function ModalForm({ show, onClose, title, fields, onSubmit, initialData = {} })
         }
         if ('email' in formData && !validarEmail(formData.email || '')) {
             newErrors.email = 'Email inválido';
-        }
-
-        if ('login' in formData && (!formData.login || formData.login.trim() === '')) {
-            newErrors.login = 'Login é obrigatório'
-        }
-
-        if (isCreating && 'password' in formData && (!formData.password || formData.password.trim() === '')) {
-            newErrors.password = 'Senha é obrigatória'
-        }
-
-        if ('perfil' in formData && (!formData.perfil || formData.perfil === '')) {
-            newErrors.perfil = 'Selecione um perfil'
-        }
-
-        if ('person' in formData && (!formData.person || formData.person === '')) {
-            newErrors.person = 'Selecione uma pessoa'
         }
 
         if (Object.keys(newErrors).length > 0) {
