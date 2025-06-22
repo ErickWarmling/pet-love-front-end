@@ -23,7 +23,7 @@ function TopMenu() {
                     <button className="btn me-2" onClick={() => setSidebarOpen(true)}>
                         <FontAwesomeIcon icon={faBars} size="lg" />
                     </button>
-                    <a href="/"><img src="/logo.png" alt="Logo" style={{ height: '50px' }} /></a>
+                    <a href="/home"><img src="/logo.png" alt="Logo" style={{ height: '50px' }} /></a>
                 </div>
                 <div className="col-2 d-flex justify-content-end">
                     <img src="/perfil.png" alt="Logo" style={{ height: '50px' }} />
