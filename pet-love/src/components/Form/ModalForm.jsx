@@ -81,19 +81,19 @@ function ModalForm({ show, onClose, title, fields, onSubmit, initialData = {} })
             newErrors.email = 'Email inválido';
         }
 
-        if (!formData.login || formData.login.trim() === '') {
-            newErrors.login = 'Login é obrigatório';
+        if ('login' in formData && (!formData.login || formData.login.trim() === '')) {
+            newErrors.login = 'Login é obrigatório'
         }
 
-        if (isCreating && (!formData.password || formData.password.trim() === '')) {
-            newErrors.password = 'Senha é obrigatória';
+        if (isCreating && 'password' in formData && (!formData.password || formData.password.trim() === '')) {
+            newErrors.password = 'Senha é obrigatória'
         }
 
-        if (!formData.perfil || formData.perfil === '') {
-            newErrors.perfil = 'Selecione um perfil';
+        if ('perfil' in formData && (!formData.perfil || formData.perfil === '')) {
+            newErrors.perfil = 'Selecione um perfil'
         }
 
-        if (!formData.person || formData.person === '') {
+        if ('person' in formData && (!formData.person || formData.person === '')) {
             newErrors.person = 'Selecione uma pessoa'
         }
 

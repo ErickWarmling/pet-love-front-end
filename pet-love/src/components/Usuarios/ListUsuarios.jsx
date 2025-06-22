@@ -6,6 +6,7 @@ import GridContent from "../Grid/GridContent/GridContent";
 import { createUsuario, deleteUsuario, listUsuarios, updateUsuario } from "../../api/usuarios";
 import { listDonos } from "../../api/donos";
 import { toast } from 'react-toastify';
+import ConfirmModal from "../ConfirmModal/ConfirmModal";
 
 const columns = [
     { header: 'ID', accessor: 'id'},
@@ -22,6 +23,8 @@ function ListUsuarios() {
     const [pessoasOptions, setPessoasOptions] = useState([]);
     const [optionsLoaded, setOptionsLoaded] = useState(false);
     const [rawData, setRawData] = useState([]);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [usuarioExcluir, setUsuarioExcluir] = useState(null);
 
     useEffect(() => {
         async function fetchOptions() {
@@ -173,7 +176,7 @@ function ListUsuarios() {
                                     </button>
                                     <button
                                         className="btn btn-sm btn-danger"
-                                        onClick={() => handleDelete(row)}
+                                        onClick={() => { setUsuarioExcluir(row); setShowConfirm(true)}}
                                     >
                                         Excluir
                                     </button>
@@ -195,6 +198,22 @@ function ListUsuarios() {
                     fields={formFields}
                     onSubmit={handleSubmit}
                     initialData={selectedUsuario}
+                />
+
+                <ConfirmModal
+                    show={showConfirm}
+                    onClose={() => {
+                        setShowConfirm(false);
+                        setUsuarioExcluir(null)
+                    }}
+                    onConfirm={() => {
+                        if (usuarioExcluir) {
+                            handleDelete(usuarioExcluir);
+                        }
+                        setShowConfirm(false);
+                        setUsuarioExcluir(null);
+                    }}
+                    message={`Tem certeza que deseja excluir o usuário "${usuarioExcluir?.login}"`}
                 />
             </div>
         </section>
