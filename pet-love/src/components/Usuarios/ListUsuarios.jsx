@@ -121,15 +121,15 @@ function ListUsuarios() {
     }
 
     const formFields = [
-        { name: 'login', label: 'Login', type: 'text' },
+        { name: 'login', label: 'Login', type: 'text', required: true },
         { name: 'password', label: 'Senha', type: 'password'},
-        { name: 'perfil',  label: 'Perfil', type: 'select', 
+        { name: 'perfil',  label: 'Perfil', type: 'select', required: true,
             options: [
                 { value: 1, label: 'Recepção' },
                 { value: 2, label: 'Veterinário' }
             ]
         },
-        { name: 'person', label: 'Pessoa', type: 'select', options: pessoasOptions },
+        { name: 'person', label: 'Pessoa', type: 'select', required: true, options: pessoasOptions },
     ];
 
     return (
