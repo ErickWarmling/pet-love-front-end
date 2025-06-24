@@ -1,0 +1,23 @@
+:root {
+    overflow: hidden;
+}
+
+.pageLogin{
+    background-color: #9FCDB4;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+h1 {
+    color: #075B01;
+}
+
+.logo-petlove {
+   width: 200px;
+   height: auto;
+   position: absolute;
+   top: 10px;
+   right: 10px;
+}

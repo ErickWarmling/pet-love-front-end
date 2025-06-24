@@ -6,6 +6,7 @@ import ModalForm from '../../Form/ModalForm';
 import { createDono, deleteDono, listDonos, updateDono } from '../../../api/donos';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ConfirmModal from '../../ConfirmModal/ConfirmModal';
 
 const columns = [
     { header: 'ID', accessor: 'id' },
@@ -21,6 +22,8 @@ function ListDonos() {
     const [showModal, setShowModal] = useState(false);
     const [atualizar, setAtualizar] = useState(false);
     const [selectedDono, setSelectedDono] = useState(null);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [donoExcluir, setDonoExcluir] = useState(null);
 
     useEffect(() => {
         async function fetchData() {
@@ -148,7 +151,7 @@ function ListDonos() {
                                     </button>
                                     <button
                                         className="btn btn-sm btn-danger"
-                                        onClick={() => handleDelete(row)}
+                                        onClick={() => { setDonoExcluir(row); setShowConfirm(true) }}
                                     >
                                         Excluir
                                     </button>
@@ -168,6 +171,22 @@ function ListDonos() {
                     fields={formFields}
                     onSubmit={handleSubmit}
                     initialData={selectedDono}
+                />
+
+                <ConfirmModal
+                    show={showConfirm}
+                    onClose={() => {
+                        setShowConfirm(false);
+                        setDonoExcluir(null)
+                    }}
+                    onConfirm={() => {
+                        if (donoExcluir) {
+                            handleDelete(donoExcluir);
+                        }
+                        setShowConfirm(false);
+                        setDonoExcluir(null);
+                    }}
+                    message={`Tem certeza que deseja excluir esta pessoa?`}
                 />
             </div>
         </section>

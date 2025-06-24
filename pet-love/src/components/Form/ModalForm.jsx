@@ -33,6 +33,7 @@ function validarEmail(email) {
 function ModalForm({ show, onClose, title, fields, onSubmit, initialData = {} }) {
     const [formData, setFormData] = useState({});
     const [errors, setErrors] = useState({});
+    const isCreating = !initialData?.id;
 
     useEffect(() => {
         setFormData(initialData || {});
@@ -69,6 +70,19 @@ function ModalForm({ show, onClose, title, fields, onSubmit, initialData = {} })
 
     const handleSubmit = () => {
         const newErrors = {};
+
+        fields.forEach(field => {
+            const value = formData[field.name];
+
+            if (field.name === 'password' && isCreating && (!value || value.trim() === '')) {
+                newErrors[field.name] = 'Senha é obrigatória';
+                return;
+            }
+
+            if (field.required && (!value || value.trim?.() === '' || (Array.isArray(value) && value.length === 0))) {
+                newErrors[field.name] = `${field.label} é obrigatório`;
+            }
+        });
 
         if ('cpf' in formData && !validarCPF(formData.cpf || '')) {
             newErrors.cpf = 'CPF inválido';

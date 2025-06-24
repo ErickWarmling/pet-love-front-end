@@ -7,6 +7,7 @@ import ModalForm from '../../Form/ModalForm';
 import { listPets } from '../../../api/pets';
 import { listFuncionarios } from '../../../api/funcionarios';
 import { toast } from 'react-toastify';
+import ConfirmModal from '../../ConfirmModal/ConfirmModal';
 
 const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -38,6 +39,8 @@ function ListConsultas() {
     const [petsOptions, setPetsOptions] = useState([]);
     const [vetsOptions, setVetsOptions] = useState([]);
     const [optionsLoaded, setOptionsLoaded] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [consultaExcluir, setConsultaExcluir] = useState(null);
 
     useEffect(() => {
         async function fetchOptions() {
@@ -195,7 +198,7 @@ function ListConsultas() {
                                         </button>
                                         <button
                                             className="btn btn-sm btn-danger"
-                                            onClick={() => handleDelete(row)}
+                                            onClick={() => { setConsultaExcluir(row); setShowConfirm(true) }}
                                         >
                                             Excluir
                                         </button>
@@ -217,6 +220,22 @@ function ListConsultas() {
                     fields={formFields}
                     onSubmit={handleSubmit}
                     initialData={setselectedConsulta}
+                />
+
+                <ConfirmModal
+                    show={showConfirm}
+                    onClose={() => {
+                        setShowConfirm(false);
+                        setConsultaExcluir(null)
+                    }}
+                    onConfirm={() => {
+                        if (consultaExcluir) {
+                            handleDelete(consultaExcluir);
+                        }
+                        setShowConfirm(false);
+                        setConsultaExcluir(null);
+                    }}
+                    message={`Tem certeza que deseja excluir esta consulta?`}
                 />
             </div>
         </section>
